@@ -29,7 +29,7 @@ We consider the continuous spatial variable $\{r(x):x\in D : [1,50] \subset \mat
 \end{gather*}
 where $\rho_r(\tau)$; $\tau = \rvert x-x'\lvert/10$ is the spatial correlation function. Let $D:[1,50]$
 be discretised in $L \in \{1, 2,\dots , 50\}$ and define the discretised Gaussian RF
-$\{r(x); x \in L\}$. 
+$\{r(x); x \in L\}$, represented by the $n$-vector $\mathbf{r}\in\mathbb{R}^n$. 
 
 
 Let the spatial correlation function $\rho_r(\tau)$, be either Powered exponential with parameter $\nu_r \in [1, 1.9]$ or Matern with parameter $\nu_r \in [1, 3]$. Let the variance take the values $\sigma_r^2 \in [1, 5]$.
@@ -108,7 +108,7 @@ make_plot <- function(df,string){
     geom_line(aes(y = X8, col = "x8")) +    
     geom_line(aes(y = X9, col = "x9")) + 
     geom_line(aes(y = X10, col = "x10"))+  theme(legend.position = "none",axis.title.x=element_blank(),
-        axis.text.x=element_blank(),axis.title.y=element_blank())  +
+        axis.text.x=element_blank(),axis.title.y=element_blank(), plot.title = element_text(size=12))  +
     ggtitle(string)
   return(p)
 }
@@ -117,52 +117,60 @@ x = seq(1,50)
 tau = abs(outer(x,x,'-')/10)
 mu = rep(0,50)
 
-sigmamatrix = matern(tau,1,1)
-sample = mvrnorm(10,mu,sigmamatrix)
-df = data.frame(x, t(sample))
+sigmamatrix1 = matern(tau,1,1)
+sample1 = mvrnorm(10,mu,sigmamatrix1)
+df = data.frame(x, t(sample1))
 p1 <- make_plot(df, expression(paste("Matern, ", nu, "=1, ", sigma, "=1")))
 
-sigmamatrix = matern(tau,1,3)
-sample = mvrnorm(10,mu,sigmamatrix)
-df = data.frame(x, t(sample))
+sigmamatrix2 = matern(tau,1,3)
+sample2 = mvrnorm(10,mu,sigmamatrix2)
+df = data.frame(x, t(sample2))
 p2 <- make_plot(df, expression(paste("Matern, ", nu, "=3, ", sigma, "=1")))
 
-sigmamatrix = 5*matern(tau,1,1)
-sample = mvrnorm(10,mu,sigmamatrix)
-df = data.frame(x, t(sample))
+sigmamatrix3 = 5*matern(tau,1,1)
+sample3 = mvrnorm(10,mu,sigmamatrix3)
+df = data.frame(x, t(sample3))
 p3 <- make_plot(df, expression(paste("Matern, ", nu, "=1, ", sigma, "=5")))
 
-sigmamatrix = 5*matern(tau,1,3)
-sample = mvrnorm(10,mu,sigmamatrix)
-df = data.frame(x, t(sample))
+sigmamatrix4 = 5*matern(tau,1,3)
+sample4 = mvrnorm(10,mu,sigmamatrix4)
+df = data.frame(x, t(sample4))
 p4 <- make_plot(df, expression(paste("Matern, ", nu, "=3, ", sigma, "=5")))
 
-sigmamatrix = cov.spatial(tau, cov.model = "exponential", cov.pars = c(1, 1))
-sample = mvrnorm(10,mu,sigmamatrix)
-df = data.frame(x, t(sample))
+sigmamatrix5 = cov.spatial(tau, cov.model = "exponential", cov.pars = c(1, 1))
+sample5 = mvrnorm(10,mu,sigmamatrix5)
+df = data.frame(x, t(sample5))
 p5 <- make_plot(df, expression(paste("PExp, ", nu, "=1, ", sigma, "=1")))
 
-sigmamatrix = cov.spatial(tau, cov.model = "exponential", cov.pars = c(1, 1.9))
-sample = mvrnorm(10,mu,sigmamatrix)
-df = data.frame(x, t(sample))
+sigmamatrix6 = cov.spatial(tau, cov.model = "exponential", cov.pars = c(1, 1.9))
+sample6 = mvrnorm(10,mu,sigmamatrix6)
+df = data.frame(x, t(sample6))
 p6 <- make_plot(df, expression(paste("PExp, ", nu, "=1.9, ", sigma, "=1")))
 
-sigmamatrix = 5*cov.spatial(tau, cov.model = "exponential", cov.pars = c(1, 1))
-sample = mvrnorm(10,mu,sigmamatrix)
-df = data.frame(x, t(sample))
+sigmamatrix7 = 5*cov.spatial(tau, cov.model = "exponential", cov.pars = c(1, 1))
+sample7 = mvrnorm(10,mu,sigmamatrix7)
+df = data.frame(x, t(sample7))
 p7 <- make_plot(df, expression(paste("PExp, ", nu, "=1, ", sigma, "=5")))
 
-sigmamatrix = 5*cov.spatial(tau, cov.model = "exponential", cov.pars = c(1, 1.9))
-sample = mvrnorm(10,mu,sigmamatrix)
-df = data.frame(x, t(sample))
+sigmamatrix8 = 5*cov.spatial(tau, cov.model = "exponential", cov.pars = c(1, 1.9))
+sample8 = mvrnorm(10,mu,sigmamatrix8)
+df = data.frame(x, t(sample8))
 p8 <- make_plot(df, expression(paste("PExp, ", nu, "=1.9, ", sigma, "=5")))
 
 
 plot_grid(p1,p3, p2, p4, p5, p7, p6, p8,nrow = 2, ncol = 4)
-
 ```
 
-VURDER Å LEGGE PÅ VERDIER SÅ MAN SER VARIANSEN HER
+From the display, we see that a greater value of $\nu_r$ leads to smoother random fields. Also, a higher value of $\sigma_r^2$ leads to larger variations around the expected level $\mu_r = 0$. Also, the Matern correlation function leads to smoother random fields than the Powered exponential function.
 
 
+## c)
+We now observe the spatial variable as $\{d(x);x\in[10,25,30]\subset L\}$ according to the acquisition model,
+$$d(x) = r(x) + \epsilon(x) \quad \quad x\in[10,25,30],$$
+with measurement errors $\epsilon(\cdot)$ centred, i.i.d Gaussian with variance $\sigma_\epsilon^2$. Further, we assume that $r(x)$ and $r(x')$ are independent for all $x, x'$.
 
+The likelihood model $p(\mathbf{d}|\mathbf{r})$ links the observations to the spatial variable. The observations $\mathbf{d}$ are known, while $\mathbf{r}$ is the spatial variable. This means that the likelihood $p(\mathbf{d}|\mathbf{r})$ is not a pdf w.r.t. $\mathbf{r}$, and we do not need to normalize the likelihood.
+
+We can define a Gauss-linear likelihood model relative to the discretized spatial variable $\mathbf{r}$, and observe $\mathbf{d}\in\mathbb{R}^m$ according to
+$$[\mathbf{d}|\mathbf{r}] = \mathbf{H}\mathbf{r} + \boldsymbol \epsilon_{d|r} \sim p(\mathbf{d}|\mathbf{r}) = \phi_m(\mathbf{d};\mathbf{H}\mathbf{r},\boldsymbol \Sigma_{d|r}),$$
+where $\mathbf{H}$ is a $(m\times n)$ observation matrix. In our case, because we have three observations, $m = 3$. Also, the observations are assumed to have i.i.d. errors, which implies $\boldsymbol \Sigma_{d|r} = \sigma_\epsilon^2 I_{m\times m}$.
