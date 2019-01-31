@@ -1,0 +1,23 @@
+--- 
+title: 'TMA4250 Spatial Statistics Exercise 1, Spring 2019'
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+date: "`r format(Sys.time(), '%d.%m.%Y')`"
+subtitle: 'Group members: Henrik Syversveen Lie, Øyvind Auestad (SKRIVE STUDENTNUMMER I STEDET??)'
+---
+
+
+```{r setup, include = FALSE}
+library(formatR)
+showsol <- FALSE
+library(knitr)
+opts_chunk$set(tidy.opts = list(width.cutoff = 68), tidy = TRUE, warning = FALSE, error = FALSE, message = FALSE, echo = TRUE)
+```
+
+
