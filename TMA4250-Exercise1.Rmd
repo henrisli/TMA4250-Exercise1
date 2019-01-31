@@ -27,8 +27,68 @@ We consider the continuous spatial variable $\{r(x):x\in D : [1,50] \subset \mat
 \text{Var}\{r(x)\} = \sigma_r^2\\
 \text{Corr}\{r(x), r(x')\} = \rho_r(\tau),
 \end{gather*}
-where $\rho_r(\tau); \tau = |x−x'|/10$ is the spatial correlation function. Let $D : [1, 50]$
-be discretised in $L \in \{1, 2, . . . , 50\}$ and define the discretised Gaussian RF
+where $\rho_r(\tau)$; $\tau = \rvert x-x'\lvert/10$ is the spatial correlation function. Let $D:[1,50]$
+be discretised in $L \in \{1, 2,\dots , 50\}$ and define the discretised Gaussian RF
 $\{r(x); x \in L\}$. 
 
+
 Let the spatial correlation function $\rho_r(\tau)$, be either Powered exponential with parameter $\nu_r \in [1, 1.9]$ or Matern with parameter $\nu_r \in [1, 3]$. Let the variance take the values $\sigma_r^2 \in [1, 5]$.
+
+## a)
+We restrict the spatial correlation functions to be only positive definite functions. Covariance matrices need to be positive definite, and a positive definite correlation function ensures that all covariances matrices in our stationary Gaussian RF are positive definite for all configurations and dimensions. Further, we define a function $\rho(\tau):\mathbb{R}^q\rightarrow \mathbb{R}$ to be positive definite if
+\begin{align*}
+&\sum_{i=1}^n\sum_{j=1}^n \alpha_i \alpha_j \rho(\mathbf{x}_i-\mathbf{x}_j) \geq 0,\\
+&\text{for all configuations } [\mathbf{x}_1, \mathbf{x}_2,\ldots,\mathbf{x}_n]\in\mathbb{R}^{q\times n},\\
+&\text{for all weights } \boldsymbol{\alpha} = (\alpha_1, \alpha_2,\ldots,\alpha_n)\in \mathbb{R}^n,\\
+&\text{for all }n\in \mathbb{N}_+ \setminus \{1\}.
+\end{align*}
+
+To further investigate different correlation functions, we display two types of correlation functions, the Matern and Powered exponential functions, for different values of $\nu_r$. 
+
+```{r, echo = F, eval = T}
+library(geoR)
+library(ggplot2)
+x = seq(0,15,length.out = 1001)
+mat_1 = matern(x, 1, 1)
+mat_2 = matern(x, 1, 3)
+pexp_1 = cov.spatial(x, cov.model = "exponential", cov.pars = c(1, 1))
+pexp_2 = cov.spatial(x, cov.model = "exponential", cov.pars = c(1, 1.9))
+df = data.frame(y1 = mat_1, y2 = mat_2, y3 = pexp_1, y4 = pexp_2, value = x)
+ggplot(df, aes(value)) + 
+  geom_line(aes(y = y1, colour = "y1")) + 
+  geom_line(aes(y = y2, colour = "y2")) +
+  geom_line(aes(y = y3, colour = "y3")) + 
+  geom_line(aes(y = y4, colour = "y4")) + 
+  scale_color_manual(labels = c(expression(paste("Matern ",nu, "=1")), expression(paste("Matern ",nu, "=3")),expression(paste("PExp ", nu, "=1")), expression(paste("PExp ", nu, "=1.9"))), values = c("red", "blue", "green", "purple")) + xlab(expression(paste(tau))) + ylab(expression(paste(rho, "(", tau,")"))) + ggtitle(expression(paste("Display of two correlation functions for different values of ", nu)))
+
+
+```
+
+For all correlation functions $\rho_r(0)  =1$, and $\rho_r(\tau) \in [-1,1]$; $\tau\in\mathbb{R}_\bigoplus$, because the function represents correlation between two random variables. The correlation functions are continuous everywhere, except at $\tua = 0$ where a step may occur. If the correlation function is continuous at $\tau = $, then the random field is continuous almost everywhere. Away from $\tau = 0$, the correlation function must be smooth. From the displayed correlation functions, we see that $\rho_r(\tau)\rightarrow 0$ as $\tau \rightarrow \infty$. This will be the case for all correlation functions, implying that two points $\mathbf{x}$ and $\mathbf{x}'$ will tend towards being uncorrelated as $\lvert\mathbf{x}-\mathbf{x}'\rvert\rightarrow\infty$. Uncorrelated Gaussian random fields means that they will be independent, and by extension asymptotics Gaussion random fields are ergodic.
+
+The correlation functions define correlation between points in our random field. This means that larger values of the correlation function implies a smoother random field. From the plotted correlation function, we see that the function values increases for larger values of $\nu_r$. Consequently, larger values of $\nu_r$ implies smoother random fields for both these correlation functions.
+
+We now define the variogram function, which for stationary Gaussian random fields is defined as $\gamma_r(\tau) = 2\sigma^2_r[1-\rho_r(\tau)]$. Then, we display the variogram functions associated with the previously plotted correlation functions for $\sigma_r^2 = 1$.
+```{r, echo = F, eval = T}
+gamma_1 = 2*(1-mat_1)
+gamma_2 = 2*(1-mat_2)
+gamma_3 = 2*(1-mat_3)
+
+gamma_4 = 2*(1-pexp_1)
+gamma_5 = 2*(1-pexp_2)
+gamma_6 = 2*(1-pexp_3)
+
+df = data.frame(y1 = gamma_1, y2 = gamma_2, y3 = gamma_3, value = x)
+ggplot(df, aes(value)) + 
+  geom_line(aes(y = y1, colour = "y1")) + 
+  geom_line(aes(y = y2, colour = "y2")) +
+  geom_line(aes(y = y3, colour = "y3")) + 
+  scale_color_manual(labels = c(expression(paste(nu, "=1")), expression(paste(nu, "=2")),expression(paste(nu, "=3"))), values = c("blue", "red", "green")) + xlab(expression(paste(tau))) + ylab(expression(paste(rho, "(", tau,")"))) + ggtitle(expression(paste("Variogram for Matern correlation function for different values of ", nu)))
+
+df = data.frame(y1 = gamma_4, y2 = gamma_5, y3 = gamma_6, value = x)
+ggplot(df, aes(value)) + 
+  geom_line(aes(y = y1, colour = "y1")) + 
+  geom_line(aes(y = y2, colour = "y2")) +
+  geom_line(aes(y = y3, colour = "y3")) + 
+  scale_color_manual(labels = c(expression(paste(nu, "=1")), expression(paste(nu, "=1.45")),expression(paste(nu, "=1.9"))), values = c("blue", "red", "green")) + xlab(expression(paste(tau))) + ylab(expression(paste(rho, "(", tau,")"))) + ggtitle(expression(paste("Variogram of Powered exponential correlation function for different values of ", nu)))
+```
