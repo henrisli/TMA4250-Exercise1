@@ -50,6 +50,7 @@ We restrict the spatial correlation functions to be only positive definite funct
 To further investigate different correlation functions, we display two types of correlation functions, the Matern and Powered exponential functions, for different values of $\nu_r$. 
 
 ```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
+set.seed(123)
 library(geoR)
 library(ggplot2)
 x = seq(0,5,length.out = 1001)
@@ -58,14 +59,12 @@ mat_2 = matern(x, 1, 3)
 pexp_1 = cov.spatial(x, cov.model = "exponential", cov.pars = c(1, 1))
 pexp_2 = cov.spatial(x, cov.model = "exponential", cov.pars = c(1, 1.9))
 df = data.frame(y1 = mat_1, y2 = mat_2, y3 = pexp_1, y4 = pexp_2, value = x)
-ggplot(df, aes(value)) + 
-  geom_line(aes(y = y1, colour = "y1")) + 
+ggplot(df, aes(x, y = value, color = variable)) + 
+  geom_line(aes(y = y1, colour = "y1")) +  
   geom_line(aes(y = y2, colour = "y2")) +
   geom_line(aes(y = y3, colour = "y3")) + 
   geom_line(aes(y = y4, colour = "y4")) + 
-  scale_color_manual(labels = c(expression(paste("Matern ",nu, "=1")), expression(paste("Matern ",nu, "=3")),expression(paste("PExp ", nu, "=1")), expression(paste("PExp ", nu, "=1.9"))), values = c("red", "blue", "green", "purple")) + xlab(expression(paste(tau))) + ylab(expression(paste(rho, "(", tau,")"))) + ggtitle(expression(paste("Display of two correlation functions for different values of ", nu)))
-
-
+  scale_color_manual(labels = c(expression(paste("Matern ",nu, "=1")), expression(paste("Matern ",nu, "=3")),expression(paste("PExp ", nu, "=1")), expression(paste("PExp ", nu, "=1.9"))), values = c("red", "blue", "green", "purple")) + xlab(expression(paste(tau))) + ylab(expression(paste(rho, "(", tau,")"))) + ggtitle(expression(paste("Display of two correlation functions for different values of ", nu))) + theme(panel.background=element_rect(fill = "white"))
 ```
 
 For all correlation functions $\rho_r(0)  =1$, and $\rho_r(\tau) \in [-1,1]$; $\tau\in\mathbb{R}_+$, because the function represents correlation between two random variables. The correlation functions are continuous everywhere, except at $\tau = 0$ where a step may occur. If the correlation function is continuous at $\tau = 0$, then the random field is continuous almost everywhere. Away from $\tau = 0$, the correlation function must be smooth. From the displayed correlation functions, we see that $\rho_r(\tau)\rightarrow 0$ as $\tau \rightarrow \infty$. This will be the case for all correlation functions, implying that two points $\mathbf{x}$ and $\mathbf{x}'$ will tend towards being uncorrelated as $\lvert\mathbf{x}-\mathbf{x}'\rvert\rightarrow\infty$. Uncorrelated Gaussian random fields means that they will be independent, and by extension asymptotics Gaussion random fields are ergodic.
@@ -81,12 +80,13 @@ gamma_4 = 2*(1-pexp_2)
 
 df = data.frame(y1 = gamma_1, y2 = gamma_2, y3 = gamma_3, y4 = gamma_4, value = x)
 
-ggplot(df, aes(value)) + 
+ggplot(df, aes(x, y = value, color = variable)) + 
   geom_line(aes(y = y1, colour = "y1")) + 
   geom_line(aes(y = y2, colour = "y2")) +
   geom_line(aes(y = y3, colour = "y3")) + 
   geom_line(aes(y = y4, colour = "y4")) + 
-  scale_color_manual(labels = c(expression(paste("Matern ",nu, "=1")), expression(paste("Matern ",nu, "=3")),expression(paste("PExp ", nu, "=1")), expression(paste("PExp ", nu, "=1.9"))), values = c("red", "blue", "green", "purple")) + xlab(expression(paste(tau))) + ylab(expression(paste(rho, "(", tau,")"))) + ggtitle(expression(paste("Variogram for two correlation functions for different values of ", nu)))
+  scale_color_manual(labels = c(expression(paste("Matern ",nu, "=1")), expression(paste("Matern ",nu, "=3")),expression(paste("PExp ", nu, "=1")), expression(paste("PExp ", nu, "=1.9"))), values = c("red", "blue", "green", "purple")) + xlab(expression(paste(tau))) + ylab(expression(paste(rho, "(", tau,")"))) + ggtitle(expression(paste("Variogram for two correlation functions for different values of ", nu)))+
+  theme(legend.title=element_blank())
 ```
 
 ## b)
@@ -162,7 +162,7 @@ df = data.frame(x, t(sample8))
 p8 <- make_plot(df, expression(paste("PExp, ", nu, "=1.9, ", sigma, "=5")))
 
 
-plot_grid(p1,p2, p3, p4, p5, p7, p6, p8,nrow = 2, ncol = 4)
+plot_grid(p1,p2, p3, p4, p5, p6, p7, p8,nrow = 2, ncol = 4)
 ```
 
 From the display, we see that a greater value of $\nu_r$ leads to smoother random fields. Also, a higher value of $\sigma_r^2$ leads to larger variations around the expected level $\mu_r = 0$. Also, the Matern correlation function leads to smoother random fields than the Powered exponential function.
@@ -208,15 +208,15 @@ sigma_e = 0
 sigma_dr = diag(3)*sigma_e
 mu_rd_zero = mu_r + 5*sigma_r_rho%*%t(H)%*%solve(5*H%*%sigma_r_rho%*%t(H)+sigma_dr)%*%(observation-H%*%mu_r)
 sigma_rd_zero = 5*sigma_r_rho-5*sigma_r_rho%*%t(H)%*%solve(5*H%*%sigma_r_rho%*%t(H)+sigma_dr)%*%H%*%sigma_r_rho*5
-std_rd = sqrt(diag(sigma_rd))
-std_rd[30] = 0
-std_rd[25] = 0
-std_rd[10] = 0
-lower_bound = mu_rd - qnorm(0.95)*std_rd
-upper_bound = mu_rd + qnorm(0.95)*std_rd
+std_rd_zero = sqrt(diag(sigma_rd_zero))
+std_rd_zero[30] = 0
+std_rd_zero[25] = 0
+std_rd_zero[10] = 0
+lower_bound = mu_rd_zero - qnorm(0.95)*std_rd_zero
+upper_bound = mu_rd_zero + qnorm(0.95)*std_rd_zero
 
 
-df = data.frame(y1 = mu_rd, y2 = c(rep(NA,9), observation[1], rep(NA,14), observation[2], rep(NA,4), observation[3], rep(NA,20)), y3 = lower_bound, y4 = upper_bound)
+df = data.frame(y1 = mu_rd_zero, y2 = c(rep(NA,9), observation[1], rep(NA,14), observation[2], rep(NA,4), observation[3], rep(NA,20)), y3 = lower_bound, y4 = upper_bound)
 ggplot(df, aes(x, y = value, color = variable)) + 
     geom_line(aes(y = y1, col = "y1")) + 
     geom_point(aes(y = y2, col = "y2")) + 
@@ -229,11 +229,11 @@ sigma_e = 0.25
 sigma_dr = diag(3)*sigma_e
 mu_rd_nonzero = mu_r + 5*sigma_r_rho%*%t(H)%*%solve(5*H%*%sigma_r_rho%*%t(H)+sigma_dr)%*%(observation-H%*%mu_r)
 sigma_rd_nonzero = 5*sigma_r_rho-5*sigma_r_rho%*%t(H)%*%solve(5*H%*%sigma_r_rho%*%t(H)+sigma_dr)%*%H%*%sigma_r_rho*5
-std_rd = sqrt(diag(sigma_rd))
-lower_bound = mu_rd - qnorm(0.95)*std_rd
-upper_bound = mu_rd + qnorm(0.95)*std_rd
+std_rd_nonzero = sqrt(diag(sigma_rd_nonzero))
+lower_bound = mu_rd_nonzero - qnorm(0.95)*std_rd_nonzero
+upper_bound = mu_rd_nonzero + qnorm(0.95)*std_rd_nonzero
 
-df = data.frame(y1 = mu_rd, y2 = c(rep(NA,9), observation[1], rep(NA,14), observation[2], rep(NA,4), observation[3], rep(NA,20)), y3 = lower_bound, y4 = upper_bound)
+df = data.frame(y1 = mu_rd_nonzero, y2 = c(rep(NA,9), observation[1], rep(NA,14), observation[2], rep(NA,4), observation[3], rep(NA,20)), y3 = lower_bound, y4 = upper_bound)
 ggplot(df, aes(x, y = value, color = variable)) + 
     geom_line(aes(y = y1, col = "y1")) + 
     geom_point(aes(y = y2, col = "y2")) + 
@@ -307,5 +307,57 @@ and discuss the relation between the analytically and empirically obtained
 predictions with prediction intervals!!!!!!!!!
 
 ## f)
+SPØR OM DENNE!!!!
 
+We use the previously generated 100 realizations with $\sigma_\epsilon^2 = 0$ to provide a prediction $\hat{A}_r$ for the non-linear function on $\{r(x);x\in D\}$,
+$$A_r = \int_D I(r(x)>2)dx.$$
+We also compute the prediction variance. An alternative predictor is,
+$$\tilde{A}_r = \sum_{x\in L} I(\hat{r}(x)>2).$$
+This is also computed.
+
+```{r, echo = F, eval = T}
+extract <- function(sample){
+  return(length(sample[which(sample>2)]))
+}
+A_hat = apply(sample, 1,extract)
+cat("A hat: ", mean(A_hat), '\n')
+
+sigma_r_rho = sigmamatrix2
+observations = matrix(c(sample2[,10], sample2[,25], sample2[,30]), nrow = 10, ncol = 3)
+sigma_e = 0
+sigma_dr = diag(3)*sigma_e
+r_hat = 5*sigma_r_rho%*%t(H)%*%solve(5*H%*%sigma_r_rho%*%t(H)+sigma_dr)%*%t(observations)
+A_tilde = apply(r_hat,2,extract)
+
+cat("A tilde: ", mean(A_tilde), '\n')
+cat("Predicted variance of A hat: ", var(A_hat))
+```
+Jensen's inequality states that for a random variable $X$ and a convex function $\psi$,
+$$\psi(E[X]) \leq E[\psi(X)].$$
+Taking $X = r(x)$ and $\psi(\xi) = I(\xi >2)$, this implies,???
 ## g)
+
+
+# Problem 3: Parameter estimation
+
+```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
+x = rep(seq(1, 30, length.out = 30), each = 30)
+y = rep(seq(1, 30, length.out = 30),30)
+dat = matrix(c(x,y), nrow = 900, ncol = 2)
+distances = dist(dat)
+distances <- as.matrix(distances)
+sigma_r = 2
+xi_r = 15
+corr <- function(x){
+  return(exp(-x/xi_r))
+}
+corrmatrix = corr(distances)
+covmatrix = sigma_r*corrmatrix
+mu_r = rep(0,900)
+sample = mvrnorm(1,mu_r,covmatrix)
+mtrx3d <- data.frame(x = x, y = y, z = sample)
+mtrx.melt <- melt(mtrx3d, id.vars = c("x","y"), measure.vars = "z")
+ggplot(mtrx.melt, aes(x = x, y = y, z = value)) +
+         geom_raster(aes(fill = value))
+
+```
