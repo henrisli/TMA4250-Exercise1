@@ -48,7 +48,7 @@ To further investigate different correlation functions, we display two types of 
 ```{r, echo = F, eval = T}
 library(geoR)
 library(ggplot2)
-x = seq(0,15,length.out = 1001)
+x = seq(0,5,length.out = 1001)
 mat_1 = matern(x, 1, 1)
 mat_2 = matern(x, 1, 3)
 pexp_1 = cov.spatial(x, cov.model = "exponential", cov.pars = c(1, 1))
@@ -64,7 +64,7 @@ ggplot(df, aes(value)) +
 
 ```
 
-For all correlation functions $\rho_r(0)  =1$, and $\rho_r(\tau) \in [-1,1]$; $\tau\in\mathbb{R}_\bigoplus$, because the function represents correlation between two random variables. The correlation functions are continuous everywhere, except at $\tua = 0$ where a step may occur. If the correlation function is continuous at $\tau = $, then the random field is continuous almost everywhere. Away from $\tau = 0$, the correlation function must be smooth. From the displayed correlation functions, we see that $\rho_r(\tau)\rightarrow 0$ as $\tau \rightarrow \infty$. This will be the case for all correlation functions, implying that two points $\mathbf{x}$ and $\mathbf{x}'$ will tend towards being uncorrelated as $\lvert\mathbf{x}-\mathbf{x}'\rvert\rightarrow\infty$. Uncorrelated Gaussian random fields means that they will be independent, and by extension asymptotics Gaussion random fields are ergodic.
+For all correlation functions $\rho_r(0)  =1$, and $\rho_r(\tau) \in [-1,1]$; $\tau\in\mathbb{R}_+$, because the function represents correlation between two random variables. The correlation functions are continuous everywhere, except at $\tau = 0$ where a step may occur. If the correlation function is continuous at $\tau = 0$, then the random field is continuous almost everywhere. Away from $\tau = 0$, the correlation function must be smooth. From the displayed correlation functions, we see that $\rho_r(\tau)\rightarrow 0$ as $\tau \rightarrow \infty$. This will be the case for all correlation functions, implying that two points $\mathbf{x}$ and $\mathbf{x}'$ will tend towards being uncorrelated as $\lvert\mathbf{x}-\mathbf{x}'\rvert\rightarrow\infty$. Uncorrelated Gaussian random fields means that they will be independent, and by extension asymptotics Gaussion random fields are ergodic.
 
 The correlation functions define correlation between points in our random field. This means that larger values of the correlation function implies a smoother random field. From the plotted correlation function, we see that the function values increases for larger values of $\nu_r$. Consequently, larger values of $\nu_r$ implies smoother random fields for both these correlation functions.
 
@@ -72,23 +72,97 @@ We now define the variogram function, which for stationary Gaussian random field
 ```{r, echo = F, eval = T}
 gamma_1 = 2*(1-mat_1)
 gamma_2 = 2*(1-mat_2)
-gamma_3 = 2*(1-mat_3)
+gamma_3 = 2*(1-pexp_1)
+gamma_4 = 2*(1-pexp_2)
 
-gamma_4 = 2*(1-pexp_1)
-gamma_5 = 2*(1-pexp_2)
-gamma_6 = 2*(1-pexp_3)
+df = data.frame(y1 = gamma_1, y2 = gamma_2, y3 = gamma_3, y4 = gamma_4, value = x)
 
-df = data.frame(y1 = gamma_1, y2 = gamma_2, y3 = gamma_3, value = x)
 ggplot(df, aes(value)) + 
   geom_line(aes(y = y1, colour = "y1")) + 
   geom_line(aes(y = y2, colour = "y2")) +
   geom_line(aes(y = y3, colour = "y3")) + 
-  scale_color_manual(labels = c(expression(paste(nu, "=1")), expression(paste(nu, "=2")),expression(paste(nu, "=3"))), values = c("blue", "red", "green")) + xlab(expression(paste(tau))) + ylab(expression(paste(rho, "(", tau,")"))) + ggtitle(expression(paste("Variogram for Matern correlation function for different values of ", nu)))
-
-df = data.frame(y1 = gamma_4, y2 = gamma_5, y3 = gamma_6, value = x)
-ggplot(df, aes(value)) + 
-  geom_line(aes(y = y1, colour = "y1")) + 
-  geom_line(aes(y = y2, colour = "y2")) +
-  geom_line(aes(y = y3, colour = "y3")) + 
-  scale_color_manual(labels = c(expression(paste(nu, "=1")), expression(paste(nu, "=1.45")),expression(paste(nu, "=1.9"))), values = c("blue", "red", "green")) + xlab(expression(paste(tau))) + ylab(expression(paste(rho, "(", tau,")"))) + ggtitle(expression(paste("Variogram of Powered exponential correlation function for different values of ", nu)))
+  geom_line(aes(y = y4, colour = "y4")) + 
+  scale_color_manual(labels = c(expression(paste("Matern ",nu, "=1")), expression(paste("Matern ",nu, "=3")),expression(paste("PExp ", nu, "=1")), expression(paste("PExp ", nu, "=1.9"))), values = c("red", "blue", "green", "purple")) + xlab(expression(paste(tau))) + ylab(expression(paste(rho, "(", tau,")"))) + ggtitle(expression(paste("Variogram for two correlation functions for different values of ", nu)))
 ```
+
+## b)
+The prior Gaussion random field is defined on the discretized representation $L\in \{1,2,\dots,50\}$ by
+$$\mathbf{r} \sim p(\mathbf{r}) = \phi_n(\mathbf{r};\mu_r \mathbf{i}_n, \sigma^2_r \boldsymbol{\Sigma}_r^\rho),$$
+which is a discretized stationary Gaussian random field with expectation $\mu(\mathbf{x}) = \mu_r$, variance $\sigma^2(\mathbf{x}) = \sigma_r^2$ and correlation function $\rho(\mathbf{x},\mathbf{x}') = \rho_r(\mathbf{x}-\mathbf{x}')$.
+
+We now want to simulate ten realizations of the Gaussian random field on $L$ for all the previously displayed correlation functions and $\sigma_r^2 \in [1,5]$.
+
+```{r, echo = F, eval = T}
+library(MASS)
+library(cowplot)
+
+make_plot <- function(df,string){
+  p <-ggplot(df, aes(x, y = value, color = variable)) + 
+    geom_line(aes(y = X1, col = "x1")) + 
+    geom_line(aes(y = X2, col = "x2")) +
+    geom_line(aes(y = X3, col = "x3")) + 
+    geom_line(aes(y = X4, col = "x4")) + 
+    geom_line(aes(y = X5, col = "x5")) + 
+    geom_line(aes(y = X6, col = "x6")) +
+    geom_line(aes(y = X7, col = "x7")) + 
+    geom_line(aes(y = X8, col = "x8")) +    
+    geom_line(aes(y = X9, col = "x9")) + 
+    geom_line(aes(y = X10, col = "x10"))+  theme(legend.position = "none",axis.title.x=element_blank(),
+        axis.text.x=element_blank(),axis.title.y=element_blank())  +
+    ggtitle(string)
+  return(p)
+}
+
+x = seq(1,50)
+tau = abs(outer(x,x,'-')/10)
+mu = rep(0,50)
+
+sigmamatrix = matern(tau,1,1)
+sample = mvrnorm(10,mu,sigmamatrix)
+df = data.frame(x, t(sample))
+p1 <- make_plot(df, expression(paste("Matern, ", nu, "=1, ", sigma, "=1")))
+
+sigmamatrix = matern(tau,1,3)
+sample = mvrnorm(10,mu,sigmamatrix)
+df = data.frame(x, t(sample))
+p2 <- make_plot(df, expression(paste("Matern, ", nu, "=3, ", sigma, "=1")))
+
+sigmamatrix = 5*matern(tau,1,1)
+sample = mvrnorm(10,mu,sigmamatrix)
+df = data.frame(x, t(sample))
+p3 <- make_plot(df, expression(paste("Matern, ", nu, "=1, ", sigma, "=5")))
+
+sigmamatrix = 5*matern(tau,1,3)
+sample = mvrnorm(10,mu,sigmamatrix)
+df = data.frame(x, t(sample))
+p4 <- make_plot(df, expression(paste("Matern, ", nu, "=3, ", sigma, "=5")))
+
+sigmamatrix = cov.spatial(tau, cov.model = "exponential", cov.pars = c(1, 1))
+sample = mvrnorm(10,mu,sigmamatrix)
+df = data.frame(x, t(sample))
+p5 <- make_plot(df, expression(paste("PExp, ", nu, "=1, ", sigma, "=1")))
+
+sigmamatrix = cov.spatial(tau, cov.model = "exponential", cov.pars = c(1, 1.9))
+sample = mvrnorm(10,mu,sigmamatrix)
+df = data.frame(x, t(sample))
+p6 <- make_plot(df, expression(paste("PExp, ", nu, "=1.9, ", sigma, "=1")))
+
+sigmamatrix = 5*cov.spatial(tau, cov.model = "exponential", cov.pars = c(1, 1))
+sample = mvrnorm(10,mu,sigmamatrix)
+df = data.frame(x, t(sample))
+p7 <- make_plot(df, expression(paste("PExp, ", nu, "=1, ", sigma, "=5")))
+
+sigmamatrix = 5*cov.spatial(tau, cov.model = "exponential", cov.pars = c(1, 1.9))
+sample = mvrnorm(10,mu,sigmamatrix)
+df = data.frame(x, t(sample))
+p8 <- make_plot(df, expression(paste("PExp, ", nu, "=1.9, ", sigma, "=5")))
+
+
+plot_grid(p1,p3, p2, p4, p5, p7, p6, p8,nrow = 2, ncol = 4)
+
+```
+
+VURDER Å LEGGE PÅ VERDIER SÅ MAN SER VARIANSEN HER
+
+
+
