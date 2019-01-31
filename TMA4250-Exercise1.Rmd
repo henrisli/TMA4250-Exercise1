@@ -1,7 +1,10 @@
 --- 
-title: 'TMA4250 Spatial Statistics Exercise 1, Spring 2019'
+title: "TMA4250 Spatial Statistics Exercise 1, Spring 2019"
 output:
   pdf_document:
+    toc: yes
+    toc_depth: '2'
+  word_document:
     toc: yes
     toc_depth: '2'
   html_document:
@@ -9,7 +12,8 @@ output:
     toc_depth: 2
     toc_float: yes
 date: "`r format(Sys.time(), '%d.%m.%Y')`"
-subtitle: 'Group members: Henrik Syversveen Lie, Øyvind Auestad (SKRIVE STUDENTNUMMER I STEDET??)'
+subtitle: 'Group members: Henrik Syversveen Lie, Ã˜yvind Auestad (SKRIVE STUDENTNUMMER
+  I STEDET??)'
 ---
 
 
@@ -45,7 +49,7 @@ We restrict the spatial correlation functions to be only positive definite funct
 
 To further investigate different correlation functions, we display two types of correlation functions, the Matern and Powered exponential functions, for different values of $\nu_r$. 
 
-```{r, echo = F, eval = T}
+```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
 library(geoR)
 library(ggplot2)
 x = seq(0,5,length.out = 1001)
@@ -69,7 +73,7 @@ For all correlation functions $\rho_r(0)  =1$, and $\rho_r(\tau) \in [-1,1]$; $\
 The correlation functions define correlation between points in our random field. This means that larger values of the correlation function implies a smoother random field. From the plotted correlation function, we see that the function values increases for larger values of $\nu_r$. Consequently, larger values of $\nu_r$ implies smoother random fields for both these correlation functions.
 
 We now define the variogram function, which for stationary Gaussian random fields is defined as $\gamma_r(\tau) = 2\sigma^2_r[1-\rho_r(\tau)]$. Then, we display the variogram functions associated with the previously plotted correlation functions for $\sigma_r^2 = 1$.
-```{r, echo = F, eval = T}
+```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
 gamma_1 = 2*(1-mat_1)
 gamma_2 = 2*(1-mat_2)
 gamma_3 = 2*(1-pexp_1)
@@ -115,50 +119,50 @@ make_plot <- function(df,string){
 
 x = seq(1,50)
 tau = abs(outer(x,x,'-')/10)
-mu = rep(0,50)
+mu_r = rep(0,50)
 
 sigmamatrix1 = matern(tau,1,1)
-sample1 = mvrnorm(10,mu,sigmamatrix1)
+sample1 = mvrnorm(10,mu_r,sigmamatrix1)
 df = data.frame(x, t(sample1))
 p1 <- make_plot(df, expression(paste("Matern, ", nu, "=1, ", sigma, "=1")))
 
-sigmamatrix2 = matern(tau,1,3)
-sample2 = mvrnorm(10,mu,sigmamatrix2)
+sigmamatrix2 = 5*matern(tau,1,1)
+sample2 = mvrnorm(10,mu_r,sigmamatrix2)
 df = data.frame(x, t(sample2))
-p2 <- make_plot(df, expression(paste("Matern, ", nu, "=3, ", sigma, "=1")))
+p2 <- make_plot(df, expression(paste("Matern, ", nu, "=1, ", sigma, "=5")))
 
-sigmamatrix3 = 5*matern(tau,1,1)
-sample3 = mvrnorm(10,mu,sigmamatrix3)
+sigmamatrix3 = matern(tau,1,3)
+sample3 = mvrnorm(10,mu_r,sigmamatrix3)
 df = data.frame(x, t(sample3))
-p3 <- make_plot(df, expression(paste("Matern, ", nu, "=1, ", sigma, "=5")))
+p3 <- make_plot(df, expression(paste("Matern, ", nu, "=3, ", sigma, "=1")))
 
 sigmamatrix4 = 5*matern(tau,1,3)
-sample4 = mvrnorm(10,mu,sigmamatrix4)
+sample4 = mvrnorm(10,mu_r,sigmamatrix4)
 df = data.frame(x, t(sample4))
 p4 <- make_plot(df, expression(paste("Matern, ", nu, "=3, ", sigma, "=5")))
 
 sigmamatrix5 = cov.spatial(tau, cov.model = "exponential", cov.pars = c(1, 1))
-sample5 = mvrnorm(10,mu,sigmamatrix5)
+sample5 = mvrnorm(10,mu_r,sigmamatrix5)
 df = data.frame(x, t(sample5))
 p5 <- make_plot(df, expression(paste("PExp, ", nu, "=1, ", sigma, "=1")))
 
-sigmamatrix6 = cov.spatial(tau, cov.model = "exponential", cov.pars = c(1, 1.9))
-sample6 = mvrnorm(10,mu,sigmamatrix6)
+sigmamatrix6 = 5*cov.spatial(tau, cov.model = "exponential", cov.pars = c(1, 1))
+sample6 = mvrnorm(10,mu_r,sigmamatrix6)
 df = data.frame(x, t(sample6))
-p6 <- make_plot(df, expression(paste("PExp, ", nu, "=1.9, ", sigma, "=1")))
+p6 <- make_plot(df, expression(paste("PExp, ", nu, "=1, ", sigma, "=5")))
 
-sigmamatrix7 = 5*cov.spatial(tau, cov.model = "exponential", cov.pars = c(1, 1))
-sample7 = mvrnorm(10,mu,sigmamatrix7)
+sigmamatrix7 = cov.spatial(tau, cov.model = "exponential", cov.pars = c(1, 1.9))
+sample7 = mvrnorm(10,mu_r,sigmamatrix7)
 df = data.frame(x, t(sample7))
-p7 <- make_plot(df, expression(paste("PExp, ", nu, "=1, ", sigma, "=5")))
+p7 <- make_plot(df, expression(paste("PExp, ", nu, "=1.9, ", sigma, "=1")))
 
 sigmamatrix8 = 5*cov.spatial(tau, cov.model = "exponential", cov.pars = c(1, 1.9))
-sample8 = mvrnorm(10,mu,sigmamatrix8)
+sample8 = mvrnorm(10,mu_r,sigmamatrix8)
 df = data.frame(x, t(sample8))
 p8 <- make_plot(df, expression(paste("PExp, ", nu, "=1.9, ", sigma, "=5")))
 
 
-plot_grid(p1,p3, p2, p4, p5, p7, p6, p8,nrow = 2, ncol = 4)
+plot_grid(p1,p2, p3, p4, p5, p7, p6, p8,nrow = 2, ncol = 4)
 ```
 
 From the display, we see that a greater value of $\nu_r$ leads to smoother random fields. Also, a higher value of $\sigma_r^2$ leads to larger variations around the expected level $\mu_r = 0$. Also, the Matern correlation function leads to smoother random fields than the Powered exponential function.
@@ -174,3 +178,134 @@ The likelihood model $p(\mathbf{d}|\mathbf{r})$ links the observations to the sp
 We can define a Gauss-linear likelihood model relative to the discretized spatial variable $\mathbf{r}$, and observe $\mathbf{d}\in\mathbb{R}^m$ according to
 $$[\mathbf{d}|\mathbf{r}] = \mathbf{H}\mathbf{r} + \boldsymbol \epsilon_{d|r} \sim p(\mathbf{d}|\mathbf{r}) = \phi_m(\mathbf{d};\mathbf{H}\mathbf{r},\boldsymbol \Sigma_{d|r}),$$
 where $\mathbf{H}$ is a $(m\times n)$ observation matrix. In our case, because we have three observations, $m = 3$. Also, the observations are assumed to have i.i.d. errors, which implies $\boldsymbol \Sigma_{d|r} = \sigma_\epsilon^2 I_{m\times m}$.
+
+## d)
+The pdf for the discretised posterior Gaussian random field, given the observations is defined in the following way,
+$$[\mathbf{r}|\mathbf{d}]\sim p(\mathbf{r}|\mathbf{d}) = \phi_n(\mathbf{r};\boldsymbol \mu_{r|d},\boldsymbol \Sigma_{r|d},)$$
+with
+\begin{align*}
+\boldsymbol \mu_{r|d} &=\mu_r \mathbf{i}_n + \sigma^2_r \boldsymbol \Sigma_r^\rho \mathbf{H}^T\big[\sigma_r^2\mathbf{H}\boldsymbol \Sigma_r^\rho\mathbf{H} + \boldsymbol \Sigma_{d|r}\big]^{-1}[\mathbf{d}-\mu_r\mathbf{H}\mathbf{i}_n]\\
+\boldsymbol \Sigma_{r|d} &= \boldsymbol \Sigma_{r|d}^\sigma \boldsymbol \Sigma_{r|d}^\rho \boldsymbol \Sigma_{r|d}^\sigma = \sigma_r^2 \boldsymbol \Sigma_r^\rho - \sigma_r^2 \boldsymbol \Sigma_r^\rho\mathbf{H}^T\big[\sigma_r^2\mathbf{H}\boldsymbol \Sigma_r^\rho\mathbf{H} + \boldsymbol \Sigma_{d|r}\big]^{-1}\sigma_r^2\mathbf{H}\boldsymbol \Sigma_r^\rho
+\end{align*}
+
+We use as prior model one of the realizations with $\sigma_r^2 = 5$, $\nu = 1$ and Matern correlation function. Then, a prediction of the spatial variable $\{\hat{r}(\mathbf{x}); \mathbf{x}\in L\}$ represented by the vector $\hat{\mathbf{r}}$ is taken to minimize squared error, yielding
+$$\hat{\mathbf{r}} = \mathbf{E}[\mathbf{r}|\mathbf{d}] = \boldsymbol \mu_{r|d}.$$
+The associated $(1-\alpha)$ prediction intervals are,
+$$PI_\alpha = \boldsymbol \mu_{r|d} \pm z_{\alpha/2} \boldsymbol \sigma_{r|d},$$
+where $\boldsymbol \sigma_{r|d}$ is a $n$-vector containing the diagonal elements of the standard deviation matrix $\boldsymbol \Sigma_{r|d}^\sigma$.
+
+We compute and plot both the prediction and the interval.
+
+```{r, echo = F, eval = T, out.width = '50%'}
+sample = sample2[2,]
+sigma_r_rho = sigmamatrix2
+observation = c(sample[10], sample[25], sample[30])
+H = matrix(0, nrow = 3, ncol = 50)
+H[1,10] = 1
+H[2,25] = 1
+H[3,30] = 1
+sigma_e = 0
+sigma_dr = diag(3)*sigma_e
+mu_rd_zero = mu_r + 5*sigma_r_rho%*%t(H)%*%solve(5*H%*%sigma_r_rho%*%t(H)+sigma_dr)%*%(observation-H%*%mu_r)
+sigma_rd_zero = 5*sigma_r_rho-5*sigma_r_rho%*%t(H)%*%solve(5*H%*%sigma_r_rho%*%t(H)+sigma_dr)%*%H%*%sigma_r_rho*5
+std_rd = sqrt(diag(sigma_rd))
+std_rd[30] = 0
+std_rd[25] = 0
+std_rd[10] = 0
+lower_bound = mu_rd - qnorm(0.95)*std_rd
+upper_bound = mu_rd + qnorm(0.95)*std_rd
+
+
+df = data.frame(y1 = mu_rd, y2 = c(rep(NA,9), observation[1], rep(NA,14), observation[2], rep(NA,4), observation[3], rep(NA,20)), y3 = lower_bound, y4 = upper_bound)
+ggplot(df, aes(x, y = value, color = variable)) + 
+    geom_line(aes(y = y1, col = "y1")) + 
+    geom_point(aes(y = y2, col = "y2")) + 
+    geom_line(aes(y = y3, col = "y3"), linetype = "dashed") + 
+    geom_line(aes(y = y4, col = "y4"), linetype = "dashed") +
+    scale_colour_manual(labels = c("Prediction", "Observations", "Lower bound", "Upper bound"), values = c("Red", "black", "blue", "green")) + ggtitle(bquote("Prediction of r(x) with 90% prediction interval and "*sigma[epsilon]^2*"=0"))+
+  theme(legend.position = 'none')
+
+sigma_e = 0.25
+sigma_dr = diag(3)*sigma_e
+mu_rd_nonzero = mu_r + 5*sigma_r_rho%*%t(H)%*%solve(5*H%*%sigma_r_rho%*%t(H)+sigma_dr)%*%(observation-H%*%mu_r)
+sigma_rd_nonzero = 5*sigma_r_rho-5*sigma_r_rho%*%t(H)%*%solve(5*H%*%sigma_r_rho%*%t(H)+sigma_dr)%*%H%*%sigma_r_rho*5
+std_rd = sqrt(diag(sigma_rd))
+lower_bound = mu_rd - qnorm(0.95)*std_rd
+upper_bound = mu_rd + qnorm(0.95)*std_rd
+
+df = data.frame(y1 = mu_rd, y2 = c(rep(NA,9), observation[1], rep(NA,14), observation[2], rep(NA,4), observation[3], rep(NA,20)), y3 = lower_bound, y4 = upper_bound)
+ggplot(df, aes(x, y = value, color = variable)) + 
+    geom_line(aes(y = y1, col = "y1")) + 
+    geom_point(aes(y = y2, col = "y2")) + 
+    geom_line(aes(y = y3, col = "y3"), linetype = "dashed") + 
+    geom_line(aes(y = y4, col = "y4"), linetype = "dashed") +
+    scale_colour_manual(labels = c("Prediction", "Observations", "Lower bound", "Upper bound"), values = c("Red", "black", "blue", "green")) + ggtitle(bquote("Prediction of r(x) with 90% prediction interval and "*sigma[epsilon]^2*"=0.25"))+
+  theme(legend.title=element_blank())
+```
+
+From the plots, we see that with no observation error, the prediction coincides with the observations in the points where we have an observation. Also, in these points there is no uncertainty, so the lower and upper bounds are also equal the observations. When observation error is present, we get uncertainty in the observed points. In addition, adding an observation error leads to larger uncertainty, and thus variance, over the entire prediction.
+
+## e)
+We now go on to simulate 100 realizations from the posterior distribution, using the mean and covariance matrix previously computed. Then, we make a prediction based on the 100 samples and create a 90% prediction interval by computing the empirical variance.
+
+```{r, echo = F, eval = T,out.width = "50%"}
+library(reshape2)
+sample = mvrnorm(100, mu_rd_zero, sigma_rd_zero)
+prediction = apply(sample,2,mean)
+std_empirical = sqrt(apply(sample,2,var))
+lower = prediction - qt(0.95,99)*std_empirical*sqrt(1+1/100)
+upper = prediction + qt(0.95,99)*std_empirical*sqrt(1+1/100)
+
+rownames(sample) = paste("trial", seq(100), sep="")
+colnames(sample) = paste("x", seq(50), sep="")
+
+dat = as.data.frame(sample)
+dat$trial = rownames(dat)
+mdat = melt(dat, id.vars="trial")
+mdat$x = as.numeric(gsub("x", "", mdat$variable))
+df = data.frame(x = seq(1,50), pred = prediction, lb = lower, ub = upper)
+
+ggplot() +
+    theme_bw() +
+    theme(panel.grid=element_blank()) +
+    geom_line(data = mdat, aes(x=x, y=value, group=trial), size=0.2, alpha=0.1) +
+    geom_line(data = df, aes(x = x, y = pred), size = 1, col = 'red') + 
+    geom_line(data = df, aes(x = x, y = lb), size = 1, col = 'blue', linetype = "dashed") + 
+    geom_line(data = df, aes(x = x, y = ub), size = 1, col = 'blue', linetype = "dashed") + 
+    ggtitle(bquote("Prediction and 100 realizations of posterior Gaussian RF with "*sigma[epsilon]^2*"=0"))
+
+sample = mvrnorm(100, mu_rd_nonzero, sigma_rd_nonzero)
+
+
+prediction = apply(sample,2,mean)
+std_empirical = sqrt(apply(sample,2,var))
+lower = prediction - qt(0.95,99)*std_empirical*sqrt(1+1/100)
+upper = prediction + qt(0.95,99)*std_empirical*sqrt(1+1/100)
+
+
+rownames(sample) = paste("trial", seq(100), sep="")
+colnames(sample) = paste("x", seq(50), sep="")
+
+dat = as.data.frame(sample)
+dat$trial = rownames(dat)
+mdat = melt(dat, id.vars="trial")
+mdat$x = as.numeric(gsub("x", "", mdat$variable))
+df = data.frame(x = seq(1,50), pred = prediction, lb = lower, ub = upper)
+
+ggplot() +
+    theme_bw() +
+    theme(panel.grid=element_blank()) +
+    geom_line(data = mdat, aes(x=x, y=value, group=trial), size=0.2, alpha=0.1) +
+    geom_line(data = df, aes(x = x, y = pred), size = 1, col = 'red') + 
+    geom_line(data = df, aes(x = x, y = lb), size = 1, col = 'blue', linetype = "dashed") + 
+    geom_line(data = df, aes(x = x, y = ub), size = 1, col = 'blue', linetype = "dashed") + 
+    ggtitle(bquote("Prediction and 100 realizations of posterior Gaussian RF with "*sigma[epsilon]^2*"=0.25"))
+```
+
+Discuss the relation between the model parameters and the realizations,
+and discuss the relation between the analytically and empirically obtained
+predictions with prediction intervals!!!!!!!!!
+
+## f)
+
+## g)
