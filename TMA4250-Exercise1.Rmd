@@ -376,8 +376,8 @@ ggplot(mtrx.melt, aes(x = x, y = y, z = value)) +
 ```{r, echo = F, eval = T, out.width = "50%"}
 data = read.table("https://www.math.ntnu.no/emner/TMA4250/2017v/Exercise1/topo.dat")
 interpolation <- interp(data$x, data$y, data$z)
-contour(x = interpolation$x, y =interpolation$y, z = interpolation$z, drawlabels = F)
-image.plot(x = interpolation$x, y =interpolation$y, z = interpolation$z)
+contour(interpolation, drawlabels = F)
+image.plot(interpolation)
 
 #x = rep(interpolation$x,length(interpolation$x))
 #y = rep(interpolation$y,each = length(interpolation$y))
