@@ -24,6 +24,16 @@ library(knitr)
 opts_chunk$set(tidy.opts = list(width.cutoff = 68), tidy = TRUE, warning = FALSE, error = FALSE, message = FALSE, echo = TRUE)
 ```
 
+```{r, echo = F, eval = T}
+library(reshape2)
+library(geoR)
+library(ggplot2)
+library(MASS)
+library(cowplot)
+library(fields)
+library(akima)
+```
+
 # Problem 1: Gaussian RF - model characteristics
 We consider the continuous spatial variable $\{r(x):x\in D : [1,50] \subset \mathbb{R}^1$, and assume that it is modeled as a stationary 1D Gaussian RF with the following model parameters:
 \begin{gather*}
@@ -51,8 +61,6 @@ To further investigate different correlation functions, we display two types of 
 
 ```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
 set.seed(123)
-library(geoR)
-library(ggplot2)
 x = seq(0,5,length.out = 1001)
 mat_1 = matern(x, 1, 1)
 mat_2 = matern(x, 1, 3)
@@ -97,9 +105,6 @@ which is a discretized stationary Gaussian random field with expectation $\mu(\m
 We now want to simulate ten realizations of the Gaussian random field on $L$ for all the previously displayed correlation functions and $\sigma_r^2 \in [1,5]$.
 
 ```{r, echo = F, eval = T}
-library(MASS)
-library(cowplot)
-
 make_plot <- function(df,string){
   p <-ggplot(df, aes(x, y = value, color = variable)) + 
     geom_line(aes(y = X1, col = "x1")) + 
@@ -249,7 +254,6 @@ From the plots, we see that with no observation error, the prediction coincides 
 We now go on to simulate 100 realizations from the posterior distribution, using the mean and covariance matrix previously computed. Then, we make a prediction based on the 100 samples and create a 90% prediction interval by computing the empirical variance.
 
 ```{r, echo = F, eval = T,out.width = "50%"}
-library(reshape2)
 sample = mvrnorm(100, mu_rd_zero, sigma_rd_zero)
 prediction = apply(sample,2,mean)
 std_empirical = sqrt(apply(sample,2,var))
@@ -338,6 +342,19 @@ Taking $X = r(x)$ and $\psi(\xi) = I(\xi >2)$, this implies,???
 ## g)
 
 
+#
+```{r, echo = F, eval = T}
+data = read.table("https://www.math.ntnu.no/emner/TMA4250/2017v/Exercise1/topo.dat")
+interpolation <- interp(data$x, data$y, data$z)
+contour(x = interpolation$x, y =interpolation$y, z = interpolation$z, drawlabels = F)
+
+x = rep(interpolation$x,length(interpolation$x))
+y = rep(interpolation$y,each = length(interpolation$y))
+mtrx3d <- data.frame(x = x, y = y, z = as.vector(interpolation$z))
+mtrx.melt <- melt(mtrx3d, id.vars = c("x","y"), measure.vars = "z")
+ggplot(mtrx.melt, aes(x = x, y = y, z = value)) +
+         geom_raster(aes(fill = value))
+```
 # Problem 3: Parameter estimation
 ## a)
 
