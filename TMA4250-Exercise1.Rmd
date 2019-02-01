@@ -419,6 +419,7 @@ ggplot() +
 
 
 ```{r, echo = F, eval = T}
+
 parameters <- likfit(messages = F, coords = dat, data = sample, ini.cov.pars = c(3,20), cov.model = "exponential")
 parameters2 <- likfit(messages = F, coords = coordinates, data = datapoints, ini.cov.pars = c(3,20), cov.model = "exponential")
 
