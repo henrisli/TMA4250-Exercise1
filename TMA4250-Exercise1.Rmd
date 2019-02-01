@@ -341,6 +341,34 @@ $$\psi(E[X]) \leq E[\psi(X)].$$
 Taking $X = r(x)$ and $\psi(\xi) = I(\xi >2)$, this implies,???
 ## g)
 
+# Problem 2: Gaussian RF - real data
+
+## a)
+
+## b)
+
+```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
+x = rep(seq(0, 315, length.out = ),30)
+y = rep(seq(1, 30, length.out = 30),each = 30)
+dat = matrix(c(x,y), nrow = 900, ncol = 2)
+distances = dist(dat)
+distances <- as.matrix(distances)
+sigma_r = 2
+xi_r = 15
+corr <- function(x, xi){
+  return(exp(-x/xi))
+}
+corrmatrix = corr(distances, xi_r)
+covmatrix = sigma_r*corrmatrix
+mu_r = rep(0,900)
+sample = mvrnorm(1,mu_r,covmatrix)
+mtrx3d <- data.frame(x = x, y = y, z = sample)
+mtrx.melt <- melt(mtrx3d, id.vars = c("x","y"), measure.vars = "z")
+ggplot(mtrx.melt, aes(x = x, y = y, z = value)) +
+         geom_raster(aes(fill = value))
+```
+
+
 
 # Problem 2: Gaussian RF - real data
 
@@ -527,3 +555,6 @@ v1
 v2
 v3
 ```
+
+
+
