@@ -397,8 +397,8 @@ ggplot() +
 
 
 ```{r, echo = F, eval = T}
-#parameters <- likfit(coords = dat, data = sample, ini.cov.pars = c(1,10))
-#parameters2 <- likfit(coords = coordinates, data = datapoints, ini.cov.pars = c(1,10))
+parameters <- likfit(coords = dat, data = sample, ini.cov.pars = c(1,10))
+parameters2 <- likfit(coords = coordinates, data = datapoints, ini.cov.pars = c(1,10))
 
 df <- data.frame(x = seq(0,40))
 df$y1 = sigma_r*(1-corr(df$x, xi_r))
