@@ -372,7 +372,7 @@ df2 <- data.frame(v = vario$v, u = vario$u)
 ggplot() + 
   geom_line(data = df, aes(x = x, y = y, colour = "Theoretical")) +  
   geom_point(data = df2, aes(y = v, x = u, colour = "Empirical")) + 
-  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical and theoretical variogram") + scale_color_manual(name="", values = c("black","blue"))
+  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical and theoretical variogram")
 ```
 
 
@@ -381,10 +381,15 @@ ggplot() +
 
 ```{r, echo = F, eval = T}
 n_obs = 36
-x_loc <- ceiling(runif(n_obs,0,30))
-y_loc <- ceiling(runif(n_obs,0,30))
-coordinates = matrix(c(x_loc,y_loc), nrow = n_obs, ncol = 2)
-datapoints = sample[x_loc+(y_loc-1)*30]
+obs36 <- unique(ceiling(runif(n_obs,0,900)))
+while(length(obs36)<n_obs){
+  obs36 <- unique(c(obs36,ceiling(runif(1,0,900))))
+}
+x_loc36 <- obs36%%30
+y_loc36 <- obs36%/%30+1
+coordinates = matrix(c(x_loc36,y_loc36), nrow = n_obs, ncol = 2)
+
+datapoints = sample[obs36]
 vario2 <- variog(coords = coordinates, data = datapoints)
 df <- data.frame(x = seq(0,max(as.matrix(dist(coordinates)))))
 df$y = sigma_r*(1-corr(df$x, xi_r))
@@ -392,13 +397,13 @@ df2 <- data.frame(v = vario2$v, u = vario2$u)
 ggplot() + 
   geom_line(data = df, aes(x = x, y = y, colour = "Theoretical")) +  
   geom_point(data = df2, aes(y = v, x = u, colour = "Empirical")) + 
-  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical and theoretical variogram") + scale_color_manual(name="", values = c("black","blue"))
+  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical and theoretical variogram")
 ```
 
 
 ```{r, echo = F, eval = T}
-#parameters <- likfit(coords = dat, data = sample, ini.cov.pars = c(1,10))
-#parameters2 <- likfit(coords = coordinates, data = datapoints, ini.cov.pars = c(1,10))
+parameters <- likfit(messages = F, coords = dat, data = sample, ini.cov.pars = c(3,20), cov.model = "exponential")
+parameters2 <- likfit(messages = F, coords = coordinates, data = datapoints, ini.cov.pars = c(3,20), cov.model = "exponential")
 
 df <- data.frame(x = seq(0,40))
 df$y1 = sigma_r*(1-corr(df$x, xi_r))
@@ -407,7 +412,89 @@ df$y3 = parameters2$cov.pars[1]*(1-corr(df$x,parameters2$cov.pars[2]))
 ggplot() + 
   geom_line(data = df, aes(x = x, y = y1, colour = "Theoretical")) +  
   geom_line(data = df, aes(y = y2, x = x, colour = "Full")) +
-  geom_line(data = df, aes(y = y3, x = x, colour = "Partial")) +
-  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of maxlik... and theoretical variogram") + scale_color_manual(name="", values = c("black","blue", "red"))
+  geom_line(data = df, aes(y = y3, x = x, colour = "Partial36")) +
+  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of maxlik... and theoretical variogram")
 
+```
+
+
+```{r, echo = F, eval = T, out.width = "33%"}
+n_obs = 9
+obs9 <- unique(ceiling(runif(n_obs,0,900)))
+while(length(obs9)<n_obs){
+  obs9 <- unique(c(obs9,ceiling(runif(1,0,900))))
+} 
+x_loc9 <- obs9%%30
+y_loc9 <- obs9%/%30+1
+coordinates9 = matrix(c(x_loc9,y_loc9), nrow = n_obs, ncol = 2)
+datapoints9 = sample[obs9]
+
+parameters9 <- likfit(messages = F, coords = coordinates9, data = datapoints9, ini.cov.pars = c(1,10), cov.model = "exponential")
+vario9 <- variog(coords = coordinates9, data = datapoints9)
+df2 <- data.frame(v = vario9$v, u = vario9$u) 
+
+df <- data.frame(x = seq(0,40))
+df$y1 = sigma_r*(1-corr(df$x, xi_r))
+df$y2 = parameters$cov.pars[1]*(1-corr(df$x,parameters$cov.pars[2]))
+df$y3 = parameters9$cov.pars[1]*(1-corr(df$x,parameters9$cov.pars[2]))
+v1<-ggplot() + 
+  geom_line(data = df, aes(x = x, y = y1, colour = "Theoretical")) +  
+  geom_line(data = df, aes(y = y2, x = x, colour = "Full")) +
+  geom_line(data = df, aes(y = y3, x = x, colour = "Partial9")) +
+  geom_point(data = df2, aes(y = v, x = u, colour = "Empirical")) + 
+  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of maxlik... and theoretical variogram")
+
+n_obs = 64
+obs64 <- unique(ceiling(runif(n_obs,0,900)))
+while(length(obs64)<n_obs){
+  obs64 <- unique(c(obs64,ceiling(runif(1,0,900))))
+} 
+x_loc64 <- obs64%%30
+y_loc64 <- obs64%/%30+1
+coordinates64 = matrix(c(x_loc64,y_loc64), nrow = n_obs, ncol = 2)
+datapoints64 = sample[obs64]
+
+
+parameters64 <- likfit(messages = F,coords = coordinates64, data = datapoints64, ini.cov.pars = c(1,10), cov.model = "exponential")
+vario64 <- variog(coords = coordinates64, data = datapoints64)
+df2 <- data.frame(v = vario64$v, u = vario64$u) 
+
+df <- data.frame(x = seq(0,40))
+df$y1 = sigma_r*(1-corr(df$x, xi_r))
+df$y2 = parameters$cov.pars[1]*(1-corr(df$x,parameters$cov.pars[2]))
+df$y3 = parameters64$cov.pars[1]*(1-corr(df$x,parameters64$cov.pars[2]))
+v2<-ggplot() + 
+  geom_line(data = df, aes(x = x, y = y1, colour = "Theoretical")) +  
+  geom_line(data = df, aes(y = y2, x = x, colour = "Full")) +
+  geom_line(data = df, aes(y = y3, x = x, colour = "Partial64")) +
+  geom_point(data = df2, aes(y = v, x = u, colour = "Empirical")) + 
+  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of maxlik... and theoretical variogram")
+
+n_obs = 100
+obs100 <- unique(ceiling(runif(n_obs,0,900)))
+while(length(obs100)<n_obs){
+  obs100 <- unique(c(obs100,ceiling(runif(1,0,900))))
+} 
+x_loc100 <- obs100%%30
+y_loc100 <- obs100%/%30+1
+coordinates100 = matrix(c(x_loc100,y_loc100), nrow = n_obs, ncol = 2)
+datapoints100 = sample[obs100]
+
+parameters100 <- likfit(messages = F,coords = coordinates100, data = datapoints100, ini.cov.pars = c(1,10), cov.model = "exponential")
+vario100 <- variog(coords = coordinates100, data = datapoints100)
+df2 <- data.frame(v = vario100$v, u = vario100$u)
+
+df <- data.frame(x = seq(0,40))
+df$y1 = sigma_r*(1-corr(df$x, xi_r))
+df$y2 = parameters$cov.pars[1]*(1-corr(df$x,parameters$cov.pars[2]))
+df$y3 = parameters100$cov.pars[1]*(1-corr(df$x,parameters100$cov.pars[2]))
+v3<-ggplot() + 
+  geom_line(data = df, aes(x = x, y = y1, colour = "Theoretical")) +  
+  geom_line(data = df, aes(y = y2, x = x, colour = "Full")) +
+  geom_line(data = df, aes(y = y3, x = x, colour = "Partial100")) +
+  geom_point(data = df2, aes(y = v, x = u, colour = "Empirical")) + 
+  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of maxlik... and theoretical variogram")
+v1
+v2
+v3
 ```
