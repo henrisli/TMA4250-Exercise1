@@ -64,7 +64,7 @@ ggplot(df, aes(x, y = value, color = variable)) +
   geom_line(aes(y = y2, colour = "y2")) +
   geom_line(aes(y = y3, colour = "y3")) + 
   geom_line(aes(y = y4, colour = "y4")) + 
-  scale_color_manual(labels = c(expression(paste("Matern ",nu, "=1")), expression(paste("Matern ",nu, "=3")),expression(paste("PExp ", nu, "=1")), expression(paste("PExp ", nu, "=1.9"))), values = c("red", "blue", "green", "purple")) + xlab(expression(paste(tau))) + ylab(expression(paste(rho, "(", tau,")"))) + ggtitle(expression(paste("Display of two correlation functions for different values of ", nu))) + theme(panel.background=element_rect(fill = "white"))
+  scale_color_manual(labels = c(expression(paste("Matern ",nu, "=1")), expression(paste("Matern ",nu, "=3")),expression(paste("PExp ", nu, "=1")), expression(paste("PExp ", nu, "=1.9"))), values = c("red", "blue", "green", "purple")) + xlab(expression(paste(tau))) + ylab(expression(paste(rho, "(", tau,")"))) + ggtitle(expression(paste("Display of two correlation functions for different values of ", nu)))
 ```
 
 For all correlation functions $\rho_r(0)  =1$, and $\rho_r(\tau) \in [-1,1]$; $\tau\in\mathbb{R}_+$, because the function represents correlation between two random variables. The correlation functions are continuous everywhere, except at $\tau = 0$ where a step may occur. If the correlation function is continuous at $\tau = 0$, then the random field is continuous almost everywhere. Away from $\tau = 0$, the correlation function must be smooth. From the displayed correlation functions, we see that $\rho_r(\tau)\rightarrow 0$ as $\tau \rightarrow \infty$. This will be the case for all correlation functions, implying that two points $\mathbf{x}$ and $\mathbf{x}'$ will tend towards being uncorrelated as $\lvert\mathbf{x}-\mathbf{x}'\rvert\rightarrow\infty$. Uncorrelated Gaussian random fields means that they will be independent, and by extension asymptotics Gaussion random fields are ergodic.
@@ -339,19 +339,20 @@ Taking $X = r(x)$ and $\psi(\xi) = I(\xi >2)$, this implies,???
 
 
 # Problem 3: Parameter estimation
+## a)
 
 ```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
-x = rep(seq(1, 30, length.out = 30), each = 30)
-y = rep(seq(1, 30, length.out = 30),30)
+x = rep(seq(1, 30, length.out = 30),30)
+y = rep(seq(1, 30, length.out = 30),each = 30)
 dat = matrix(c(x,y), nrow = 900, ncol = 2)
 distances = dist(dat)
 distances <- as.matrix(distances)
 sigma_r = 2
 xi_r = 15
-corr <- function(x){
-  return(exp(-x/xi_r))
+corr <- function(x, xi){
+  return(exp(-x/xi))
 }
-corrmatrix = corr(distances)
+corrmatrix = corr(distances, xi_r)
 covmatrix = sigma_r*corrmatrix
 mu_r = rep(0,900)
 sample = mvrnorm(1,mu_r,covmatrix)
@@ -359,5 +360,54 @@ mtrx3d <- data.frame(x = x, y = y, z = sample)
 mtrx.melt <- melt(mtrx3d, id.vars = c("x","y"), measure.vars = "z")
 ggplot(mtrx.melt, aes(x = x, y = y, z = value)) +
          geom_raster(aes(fill = value))
+```
+
+
+## b)
+```{r, echo = F, eval = T}
+vario <- variog(coords = dat, data = sample)
+df <- data.frame(x = seq(0,40))
+df$y = sigma_r*(1-corr(df$x, xi_r))
+df2 <- data.frame(v = vario$v, u = vario$u)
+ggplot() + 
+  geom_line(data = df, aes(x = x, y = y, colour = "Theoretical")) +  
+  geom_point(data = df2, aes(y = v, x = u, colour = "Empirical")) + 
+  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical and theoretical variogram") + scale_color_manual(name="", values = c("black","blue"))
+```
+
+
+## c)
+
+
+```{r, echo = F, eval = T}
+n_obs = 36
+x_loc <- ceiling(runif(n_obs,0,30))
+y_loc <- ceiling(runif(n_obs,0,30))
+coordinates = matrix(c(x_loc,y_loc), nrow = n_obs, ncol = 2)
+datapoints = sample[x_loc+(y_loc-1)*30]
+vario2 <- variog(coords = coordinates, data = datapoints)
+df <- data.frame(x = seq(0,max(as.matrix(dist(coordinates)))))
+df$y = sigma_r*(1-corr(df$x, xi_r))
+df2 <- data.frame(v = vario2$v, u = vario2$u)
+ggplot() + 
+  geom_line(data = df, aes(x = x, y = y, colour = "Theoretical")) +  
+  geom_point(data = df2, aes(y = v, x = u, colour = "Empirical")) + 
+  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical and theoretical variogram") + scale_color_manual(name="", values = c("black","blue"))
+```
+
+
+```{r, echo = F, eval = T}
+#parameters <- likfit(coords = dat, data = sample, ini.cov.pars = c(1,10))
+#parameters2 <- likfit(coords = coordinates, data = datapoints, ini.cov.pars = c(1,10))
+
+df <- data.frame(x = seq(0,40))
+df$y1 = sigma_r*(1-corr(df$x, xi_r))
+df$y2 = parameters$cov.pars[1]*(1-corr(df$x,parameters$cov.pars[2]))
+df$y3 = parameters2$cov.pars[1]*(1-corr(df$x,parameters2$cov.pars[2]))
+ggplot() + 
+  geom_line(data = df, aes(x = x, y = y1, colour = "Theoretical")) +  
+  geom_line(data = df, aes(y = y2, x = x, colour = "Full")) +
+  geom_line(data = df, aes(y = y3, x = x, colour = "Partial")) +
+  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of maxlik... and theoretical variogram") + scale_color_manual(name="", values = c("black","blue", "red"))
 
 ```
