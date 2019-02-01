@@ -2,17 +2,17 @@
 title: "TMA4250 Spatial Statistics Exercise 1, Spring 2019"
 output:
   pdf_document:
-    toc: yes
+    toc: no
     toc_depth: '2'
   word_document:
-    toc: yes
+    toc: no
     toc_depth: '2'
   html_document:
-    toc: yes
+    toc: no
     toc_depth: 2
     toc_float: yes
 date: "`r format(Sys.time(), '%d.%m.%Y')`"
-subtitle: 'Group members: Henrik Syversveen Lie, Ã˜yvind Auestad (SKRIVE STUDENTNUMMER
+subtitle: 'Group members: Henrik Syversveen Lie, Øyvind Auestad (SKRIVE STUDENTNUMMER
   I STEDET??)'
 ---
 
@@ -117,7 +117,7 @@ make_plot <- function(df,string){
     geom_line(aes(y = X8, col = "x8")) +    
     geom_line(aes(y = X9, col = "x9")) + 
     geom_line(aes(y = X10, col = "x10"))+  theme(legend.position = "none",axis.title.x=element_blank(),
-        axis.text.x=element_blank(),axis.title.y=element_blank(), plot.title = element_text(size=12))  +
+        axis.text.x=element_blank(),axis.title.y=element_blank(), plot.title = element_text(size=11))  +
     ggtitle(string)
   return(p)
 }
@@ -342,19 +342,25 @@ Taking $X = r(x)$ and $\psi(\xi) = I(\xi >2)$, this implies,???
 ## g)
 
 
-#
-```{r, echo = F, eval = T}
+# Problem 2: Gaussian RF - real data
+
+## a)
+```{r, echo = F, eval = T, out.width = "50%"}
 data = read.table("https://www.math.ntnu.no/emner/TMA4250/2017v/Exercise1/topo.dat")
 interpolation <- interp(data$x, data$y, data$z)
 contour(x = interpolation$x, y =interpolation$y, z = interpolation$z, drawlabels = F)
+image.plot(x = interpolation$x, y =interpolation$y, z = interpolation$z)
 
-x = rep(interpolation$x,length(interpolation$x))
-y = rep(interpolation$y,each = length(interpolation$y))
-mtrx3d <- data.frame(x = x, y = y, z = as.vector(interpolation$z))
-mtrx.melt <- melt(mtrx3d, id.vars = c("x","y"), measure.vars = "z")
-ggplot(mtrx.melt, aes(x = x, y = y, z = value)) +
-         geom_raster(aes(fill = value))
+#x = rep(interpolation$x,length(interpolation$x))
+#y = rep(interpolation$y,each = length(interpolation$y))
+#mtrx3d <- data.frame(x = x, y = y, z = as.vector(interpolation$z))
+#mtrx.melt <- melt(mtrx3d, id.vars = c("x","y"), measure.vars = "z")
+#ggplot(mtrx.melt, aes(x = x, y = y, z = value)) +
+#         geom_raster(aes(fill = value))
 ```
+
+
+
 # Problem 3: Parameter estimation
 ## a)
 
@@ -373,15 +379,21 @@ corrmatrix = corr(distances, xi_r)
 covmatrix = sigma_r*corrmatrix
 mu_r = rep(0,900)
 sample = mvrnorm(1,mu_r,covmatrix)
-mtrx3d <- data.frame(x = x, y = y, z = sample)
-mtrx.melt <- melt(mtrx3d, id.vars = c("x","y"), measure.vars = "z")
-ggplot(mtrx.melt, aes(x = x, y = y, z = value)) +
-         geom_raster(aes(fill = value))
+
+#mtrx3d <- data.frame(x = x, y = y, z = sample)
+#mtrx.melt <- melt(mtrx3d, id.vars = c("x","y"), measure.vars = "z")
+#ggplot(mtrx.melt, aes(x = x, y = y, z = value)) +
+#         geom_raster(aes(fill = value))
+
+x = seq(1,30)
+y = seq(1,30)
+
+image.plot(x = x, y = y, z = matrix(sample, ncol = 30))
 ```
 
 
 ## b)
-```{r, echo = F, eval = T}
+```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
 vario <- variog(messages = F, coords = dat, data = sample)
 df <- data.frame(x = seq(0,40))
 df$y = sigma_r*(1-corr(df$x, xi_r))
@@ -396,7 +408,7 @@ ggplot() +
 ## c)
 
 
-```{r, echo = F, eval = T}
+```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
 n_obs = 36
 obs36 <- unique(ceiling(runif(n_obs,0,900)))
 while(length(obs36)<n_obs){
@@ -418,7 +430,7 @@ ggplot() +
 ```
 
 
-```{r, echo = F, eval = T}
+```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
 
 parameters <- likfit(messages = F, coords = dat, data = sample, ini.cov.pars = c(3,20), cov.model = "exponential")
 parameters2 <- likfit(messages = F, coords = coordinates, data = datapoints, ini.cov.pars = c(3,20), cov.model = "exponential")
