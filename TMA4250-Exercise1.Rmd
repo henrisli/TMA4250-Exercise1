@@ -341,34 +341,6 @@ $$\psi(E[X]) \leq E[\psi(X)].$$
 Taking $X = r(x)$ and $\psi(\xi) = I(\xi >2)$, this implies,???
 ## g)
 
-# Problem 2: Gaussian RF - real data
-
-## a)
-
-## b)
-
-```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
-x = rep(seq(0, 315, length.out = ),30)
-y = rep(seq(1, 30, length.out = 30),each = 30)
-dat = matrix(c(x,y), nrow = 900, ncol = 2)
-distances = dist(dat)
-distances <- as.matrix(distances)
-sigma_r = 2
-xi_r = 15
-corr <- function(x, xi){
-  return(exp(-x/xi))
-}
-corrmatrix = corr(distances, xi_r)
-covmatrix = sigma_r*corrmatrix
-mu_r = rep(0,900)
-sample = mvrnorm(1,mu_r,covmatrix)
-mtrx3d <- data.frame(x = x, y = y, z = sample)
-mtrx.melt <- melt(mtrx3d, id.vars = c("x","y"), measure.vars = "z")
-ggplot(mtrx.melt, aes(x = x, y = y, z = value)) +
-         geom_raster(aes(fill = value))
-```
-
-
 
 # Problem 2: Gaussian RF - real data
 
@@ -387,7 +359,38 @@ image.plot(interpolation)
 #         geom_raster(aes(fill = value))
 ```
 
-
+## b)
+We now want to develop the expression for the minimization problem to be solved for
+the universal kriging predictor. We assume the model parameters $\boldsymbol \beta_r^+$ to be unknown, while the parameters ($\sigma_r^2,\eta_r$) are known. Then, we need the kriging predictor $\hat r_0$ to be unbiased, which requires
+$$\mathbf{E}[\hat r_0 - r_0] = \boldsymbol \alpha^T\mathbf{E}[\mathbf{r}^d] - \mathbf{E}[r_0] = 0,$$
+implying
+$$\boldsymbol \alpha^T\mathbf{G}_d\boldsymbol \beta_r^+ = \mathbf{g}_\mathbf{x_0}\boldsymbol \beta_r^+,$$
+which finally implies
+$$\mathbf{G}_d^T \boldsymbol \alpha = \mathbf{g}_\mathbf{x_0}.$$
+In addition to being unbiased, we want the predictor to have minimum variance. We ensure minimum variance through the minimum squared-error criterion, which leads to the following minimization problem
+\begin{align*}
+\hat{\boldsymbol \alpha} &= \arg \min_{\boldsymbol \alpha} \{\mathbf{Var}[\hat r_0 - r_0]\}\\
+&= \arg \min_{\boldsymbol \alpha} \{\sigma_r^2 - 2 \boldsymbol \alpha^T \sigma_r^2 \boldsymbol \rho_0 + \boldsymbol \alpha^T \sigma_r^2 \boldsymbol \Sigma_d^\rho \boldsymbol \alpha\}\\
+&\text{constrained by: } \mathbf{G}_d^T\boldsymbol \alpha = \mathbf{g}_\mathbf{x_0}.
+\end{align*}
+This is a quadratic optimization problem with linear constraints. Thus, it is possible to solve it analytically, giving the universal Kriging predictor and associated prediction variance,
+\begin{align*}
+\hat r_0&=\hat{\boldsymbol \alpha}^T\mathbf{r}^d\\
+\sigma_{\hat r}^2 &= \sigma_r^2[1-2\hat{\boldsymbol \alpha}^T\boldsymbol \rho_0 + \hat{\boldsymbol \alpha}^T\boldsymbol \Sigma_d^\rho \hat{\boldsymbol \alpha}],
+\end{align*}
+with 
+$$\hat{\boldsymbol \alpha} = [\boldsymbol \Sigma_d^\rho]^{-1} \Big[\boldsymbol \rho_0 - \mathbf{G}_d^T\big[\mathbf{G}_d[\boldsymbol \Sigma_d^\rho]^{-1}\mathbf{G}_d^T\big]^{-1}\big[\mathbf{G}_d[\boldsymbol \Sigma_d^\rho]^{-1}\boldsymbol \rho_0 - \mathbf{g}_\mathbf{x_0}\big]\Big].$$
+## c)
+We now let the reference variable $\mathbf{x} \in D \subset \mathbb{R}^2$ be denoted $\mathbf{x} = (x_v,x_h)$ and set $n_g = 6$. Then we define the set of known polynomial functions $\mathbf{g}(\mathbf{x})$ to be all polynomial $x_v^k x_h^l$ for $(k,l) \in \{(0,0),(1,0),(0,1),(1,1),(2,0),(0,2)\}$. The resulting $n_g$-vector $\mathbf{g}(\mathbf{x})$ will be
+$$\mathbf{g}(\mathbf{x}) = \{1,x_v, x_h, x_vx_h, x_v^2, x_h^2\}.$$
+This gives the following expectation value for $r(\mathbf{x})$
+$$\mathbf{E}(r(\mathbf{x})) = \mathbf{g}(\mathbf{x})^T\boldsymbol \beta_r = \beta_1 + x_v \beta_2 + x_h \beta_3 + x_v x_h \beta_4 + x_v^2 \beta_5 + x_h^2 \beta_6.$$
+```{r, echo = F, eval = T}
+locations = expand.grid(seq(1,315,l=315), seq(1,315,l=315))
+loc = as.data.frame(locations)
+loc$z = rep(0,length(loc$Var1))
+kriging <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "OK",trend.d = trend.spatial("2nd", as.geodata(data)), trend.l = trend.spatial("2nd", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100)))
+```
 
 # Problem 3: Parameter estimation
 ## a)
@@ -460,9 +463,8 @@ ggplot() +
 
 
 ```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
-
-parameters <- likfit(messages = F, coords = dat, data = sample, ini.cov.pars = c(3,20), cov.model = "exponential")
-parameters2 <- likfit(messages = F, coords = coordinates, data = datapoints, ini.cov.pars = c(3,20), cov.model = "exponential")
+parameters <- likfit(messages = F, coords = dat, data = sample, ini.cov.pars = c(1,10), cov.model = "exponential")
+parameters2 <- likfit(messages = F, coords = coordinates, data = datapoints, ini.cov.pars = c(1,10), cov.model = "exponential")
 
 df <- data.frame(x = seq(0,40))
 df$y1 = sigma_r*(1-corr(df$x, xi_r))
