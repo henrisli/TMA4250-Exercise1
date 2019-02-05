@@ -406,6 +406,7 @@ corr <- function(x, xi){
 corrmatrix = corr(distances, xi_r)
 covmatrix = sigma_r*corrmatrix
 mu_r = rep(0,900)
+
 sample = mvrnorm(1,mu_r,covmatrix)
 
 #mtrx3d <- data.frame(x = x, y = y, z = sample)
