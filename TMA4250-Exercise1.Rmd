@@ -24,6 +24,7 @@ library(knitr)
 opts_chunk$set(tidy.opts = list(width.cutoff = 68), tidy = TRUE, warning = FALSE, error = FALSE, message = FALSE, echo = TRUE)
 ```
 
+
 ```{r, echo = F, eval = T}
 library(reshape2)
 library(geoR)
@@ -32,6 +33,7 @@ library(MASS)
 library(cowplot)
 library(fields)
 library(akima)
+
 ```
 
 # Problem 1: Gaussian RF - model characteristics
@@ -176,7 +178,7 @@ From the display, we see that a greater value of $\nu_r$ leads to smoother rando
 ## c)
 We now observe the spatial variable as $\{d(x);x\in[10,25,30]\subset L\}$ according to the acquisition model,
 $$d(x) = r(x) + \epsilon(x) \quad \quad x\in[10,25,30],$$
-with measurement errors $\epsilon(\cdot)$ centred, i.i.d Gaussian with variance $\sigma_\epsilon^2$. Further, we assume that $r(x)$ and $r(x')$ are independent for all $x, x'$.
+with measurement errors $\epsilon(\cdot)$ centred, i.i.d Gaussian with variance $\sigma_\epsilon^2$. Further, we assume that $r(x)$ and $\epsilon(x')$ are independent for all $x, x'$.
 
 The likelihood model $p(\mathbf{d}|\mathbf{r})$ links the observations to the spatial variable. The observations $\mathbf{d}$ are known, while $\mathbf{r}$ is the spatial variable. This means that the likelihood $p(\mathbf{d}|\mathbf{r})$ is not a pdf w.r.t. $\mathbf{r}$, and we do not need to normalize the likelihood.
 
@@ -389,8 +391,40 @@ $$\mathbf{E}(r(\mathbf{x})) = \mathbf{g}(\mathbf{x})^T\boldsymbol \beta_r = \bet
 locations = expand.grid(seq(1,315,l=315), seq(1,315,l=315))
 loc = as.data.frame(locations)
 loc$z = rep(0,length(loc$Var1))
-kriging <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "OK",trend.d = trend.spatial("2nd", as.geodata(data)), trend.l = trend.spatial("2nd", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100)))
+
+# 2nd
+kriging <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("2nd", as.geodata(data)), trend.l = trend.spatial("2nd", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100))) 
+
+x = seq(1, 315, l = 315)
+y = seq(1, 315, l = 315)
+image.plot(x = x, y = y, z = matrix(kriging$predict, nrow = 315))
+
+# 1st
+kriging <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("1st", as.geodata(data)), trend.l = trend.spatial("1st", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100))) 
+
+image.plot(x = x, y = y, z = matrix(kriging$predict, nrow = 315))
+
 ```
+## d)
+Since the random field is Gaussian, the best linear predictor (our kriging predictor) coencides with the conditional expectation, $E(r_0 | \mathbf{r^d})$. The Gaussian distribution is closed under conditioning, and it follows that $$r_0 | \mathbf{r^d} \sim \phi(r_0; \hat{r}, \sigma^2_{\hat{r}}),$$ where $\sigma^2_{\hat{r}}$ is as previously defined. 
+
+```{r, echo = F, eval = T}
+# index of (100, 100)
+idx = 100 + 100 * 315
+mu = kriging$predict[idx]
+var = kriging$krige.var[idx]
+
+cat("Probability of r((100, 100)) being larger than 700m: ", pnorm((700 - mu) / sqrt(var), lower.tail = FALSE), '\n')
+
+cat("Elevation at which the probability of r((100, 100)) being smaller is 0.9: ", qnorm(0.9, mean = mu, sd = sqrt(var), lower.tail = TRUE))
+
+```
+
+## e)
+
+Spør om denne på tirsdag
+
+## f)
 
 # Problem 3: Parameter estimation
 ## a)
