@@ -393,16 +393,16 @@ loc = as.data.frame(locations)
 loc$z = rep(0,length(loc$Var1))
 
 # 2nd
-kriging <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("2nd", as.geodata(data)), trend.l = trend.spatial("2nd", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100))) 
+kriging_2nd <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("2nd", as.geodata(data)), trend.l = trend.spatial("2nd", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100)), output = outpu.control(messages = F)) 
 
 x = seq(1, 315, l = 315)
 y = seq(1, 315, l = 315)
-image.plot(x = x, y = y, z = matrix(kriging$predict, nrow = 315))
+image.plot(x = x, y = y, z = matrix(kriging_2nd$predict, nrow = 315))
 
 # 1st
-kriging <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("1st", as.geodata(data)), trend.l = trend.spatial("1st", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100))) 
+kriging_1st <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("1st", as.geodata(data)), trend.l = trend.spatial("1st", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100)), output = outpu.control(messages = F)) 
 
-image.plot(x = x, y = y, z = matrix(kriging$predict, nrow = 315))
+image.plot(x = x, y = y, z = matrix(kriging_1st$predict, nrow = 315))
 
 ```
 ## d)
