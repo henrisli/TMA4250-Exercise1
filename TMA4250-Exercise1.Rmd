@@ -387,20 +387,20 @@ We now let the reference variable $\mathbf{x} \in D \subset \mathbb{R}^2$ be den
 $$\mathbf{g}(\mathbf{x}) = \{1,x_v, x_h, x_vx_h, x_v^2, x_h^2\}.$$
 This gives the following expectation value for $r(\mathbf{x})$
 $$\mathbf{E}(r(\mathbf{x})) = \mathbf{g}(\mathbf{x})^T\boldsymbol \beta_r = \beta_1 + x_v \beta_2 + x_h \beta_3 + x_v x_h \beta_4 + x_v^2 \beta_5 + x_h^2 \beta_6.$$
-```{r, echo = F, eval = T}
+```{r, echo = F, eval = T, out.width = "50%"}
 locations = expand.grid(seq(1,315,l=315), seq(1,315,l=315))
 loc = as.data.frame(locations)
 loc$z = rep(0,length(loc$Var1))
 
 # 2nd
-kriging_2nd <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("2nd", as.geodata(data)), trend.l = trend.spatial("2nd", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100)), output = outpu.control(messages = F)) 
+kriging_2nd <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("2nd", as.geodata(data)), trend.l = trend.spatial("2nd", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100)), output = output.control(messages = F)) 
 
 x = seq(1, 315, l = 315)
 y = seq(1, 315, l = 315)
 image.plot(x = x, y = y, z = matrix(kriging_2nd$predict, nrow = 315))
 
 # 1st
-kriging_1st <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("1st", as.geodata(data)), trend.l = trend.spatial("1st", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100)), output = outpu.control(messages = F)) 
+kriging_1st <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("1st", as.geodata(data)), trend.l = trend.spatial("1st", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100)), output = output.control(messages = F)) 
 
 image.plot(x = x, y = y, z = matrix(kriging_1st$predict, nrow = 315))
 
@@ -411,8 +411,8 @@ Since the random field is Gaussian, the best linear predictor (our kriging predi
 ```{r, echo = F, eval = T}
 # index of (100, 100)
 idx = 100 + 100 * 315
-mu = kriging$predict[idx]
-var = kriging$krige.var[idx]
+mu = kriging_2nd$predict[idx]
+var = kriging_2nd$krige.var[idx]
 
 cat("Probability of r((100, 100)) being larger than 700m: ", pnorm((700 - mu) / sqrt(var), lower.tail = FALSE), '\n')
 
@@ -422,7 +422,40 @@ cat("Elevation at which the probability of r((100, 100)) being smaller is 0.9: "
 
 ## e)
 
-Spør om denne på tirsdag
+```{r, echo = F, eval = T, out.width = "50%"}
+locations = expand.grid(seq(1,315,l=315), seq(1,315,l=315))
+loc = as.data.frame(locations)
+loc$z = rep(0,length(loc$Var1))
+
+# nugget = 5
+
+# 2nd
+kriging_2nd_5 <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("2nd", as.geodata(data)), trend.l = trend.spatial("2nd", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100), nugget = 5), output = output.control(messages = F)) 
+
+x = seq(1, 315, l = 315)
+y = seq(1, 315, l = 315)
+image.plot(x = x, y = y, z = matrix(kriging_2nd_5$predict, nrow = 315))
+
+# 1st
+kriging_1st_5 <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("1st", as.geodata(data)), trend.l = trend.spatial("1st", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100), nugget = 5), output = output.control(messages = F)) 
+
+image.plot(x = x, y = y, z = matrix(kriging_1st_5$predict, nrow = 315))
+
+# nugget = 25
+
+# 2nd
+kriging_2nd_25 <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("2nd", as.geodata(data)), trend.l = trend.spatial("2nd", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100), nugget = 25), output = output.control(messages = F)) 
+
+x = seq(1, 315, l = 315)
+y = seq(1, 315, l = 315)
+image.plot(x = x, y = y, z = matrix(kriging_2nd_25$predict, nrow = 315))
+
+# 1st
+kriging_1st_25 <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("1st", as.geodata(data)), trend.l = trend.spatial("1st", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100), nugget = 25), output = output.control(messages = F)) 
+
+image.plot(x = x, y = y, z = matrix(kriging_1st_25$predict, nrow = 315))
+
+```
 
 ## f)
 
