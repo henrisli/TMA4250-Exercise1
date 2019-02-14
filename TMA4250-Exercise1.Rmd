@@ -368,8 +368,6 @@ image.plot(interpolation)
 #         geom_raster(aes(fill = value))
 ```
 
--Is a stationary Gaussian RF a suitable model for the terrain elevation in domain D?
-
 A stationary Gaussian RF is a reasonable model for the terrain elevation in domain D provided the correlation function is such that the dependence between different points is decreasing with distance. This RF is ergodic as well, which is natural for the model. 
 
 ## b)
