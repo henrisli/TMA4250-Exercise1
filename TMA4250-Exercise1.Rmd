@@ -361,6 +361,10 @@ image.plot(interpolation)
 #         geom_raster(aes(fill = value))
 ```
 
+-Is a stationary Gaussian RF a suitable model for the terrain elevation in domain D?
+
+A stationary Gaussian RF is a reasonable model for the terrain elevation in domain D provided the correlation function is such that the dependence between different points is decreasing with distance. This RF is ergodic as well, which is natural for the model. 
+
 ## b)
 We now want to develop the expression for the minimization problem to be solved for
 the universal kriging predictor. We assume the model parameters $\boldsymbol \beta_r^+$ to be unknown, while the parameters ($\sigma_r^2,\eta_r$) are known. Then, we need the kriging predictor $\hat r_0$ to be unbiased, which requires
@@ -387,6 +391,9 @@ We now let the reference variable $\mathbf{x} \in D \subset \mathbb{R}^2$ be den
 $$\mathbf{g}(\mathbf{x}) = \{1,x_v, x_h, x_vx_h, x_v^2, x_h^2\}.$$
 This gives the following expectation value for $r(\mathbf{x})$
 $$\mathbf{E}(r(\mathbf{x})) = \mathbf{g}(\mathbf{x})^T\boldsymbol \beta_r = \beta_1 + x_v \beta_2 + x_h \beta_3 + x_v x_h \beta_4 + x_v^2 \beta_5 + x_h^2 \beta_6.$$
+
+We can interpret the model such that mean is the level around which the elevation fluctuates, while the variance is the degree of fluctuation. The level is here a second order polynomial in the coordinates, while the variance is constant over the coordinates. 
+
 ```{r, echo = F, eval = T, out.width = "50%"}
 locations = expand.grid(seq(1,315,l=315), seq(1,315,l=315))
 loc = as.data.frame(locations)
@@ -405,6 +412,12 @@ kriging_1st <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locat
 image.plot(x = x, y = y, z = matrix(kriging_1st$predict, nrow = 315))
 
 ```
+-Is it natural to change the value of the variance if the parametrization of expectation function is changed? Present the results and comment on them, and the relation to the results using a higher-order expectation function.
+
+If we change the parametrization of the expectation function, it is natural the change the value of the variance parameter. For example when we reduce the degree of the polynomial in the expectation function we might have to compensate with larger variance to get bigger fluctutations around this new mean level. 
+
+The kriging predictions looks very similar (second degree polynomial to the left, and first degree to the right), but there are some differences, particularly in the corners of the field, which might be due to the difference in order of the expectation function.
+
 ## d)
 Since the random field is Gaussian, the best linear predictor (our kriging predictor) coencides with the conditional expectation, $E(r_0 | \mathbf{r^d})$. The Gaussian distribution is closed under conditioning, and it follows that $$r_0 | \mathbf{r^d} \sim \phi(r_0; \hat{r}, \sigma^2_{\hat{r}}),$$ where $\sigma^2_{\hat{r}}$ is as previously defined. 
 
@@ -457,7 +470,11 @@ image.plot(x = x, y = y, z = matrix(kriging_1st_25$predict, nrow = 315))
 
 ```
 
+The result is plotted above. The plots to the left have second order expectation functions while the ones to the right have first order. The plots at the top have measurement variance $5$, while the plots at the bottom have measurement variance $25$. They all seem very similar, but there seems to be a much bigger difference going from left to right than from top to bottom. 
+
 ## f)
+
+Our experiences using real data in this exercise has been useful, and it has been helpful to visualize the data in order to get a better feeling with the models and methods used. But it could be useful to get introduced to some of the algorithms used for making the predictions, instead of just putting the data in a black box. 
 
 # Problem 3: Parameter estimation
 ## a)
