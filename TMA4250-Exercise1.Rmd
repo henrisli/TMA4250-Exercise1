@@ -507,7 +507,7 @@ corr <- function(x, xi){
 corrmatrix = corr(distances, xi_r)
 covmatrix = sigma_r*corrmatrix
 mu_r = rep(0,900)
-
+set.seed(1234567)
 sample = mvrnorm(1,mu_r,covmatrix)
 
 #mtrx3d <- data.frame(x = x, y = y, z = sample)
@@ -523,6 +523,7 @@ image.plot(x = x, y = y, z = matrix(sample, ncol = 30))
 From the display, it is reasonable to assume that the generated realization comes from a Gaussian RF. 
 
 ## b)
+We now compute the empirical variogram based on the exact observations of the full realization displayed above. Then, the estimated variogram is displayed along with the correct variogram function $\gamma(\tau) = 1 - \rho(\tau)$.
 ```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
 vario <- variog(messages = F, coords = dat, data = sample)
 df <- data.frame(x = seq(0,40))
@@ -533,17 +534,16 @@ ggplot() +
   geom_point(data = df2, aes(y = v, x = u, colour = "Empirical")) + 
   xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical and theoretical variogram")
 ```
+From the plot, we see that the empirical variogram differs somewhat from the theoretical variogram. The two variograms coincide well for small values of $\tau$, but with greater $\tau$ the variograms differ significantly. This is as to be expected, because the empirical variogram is generated on relatively few observations and only one realization.
 
 
 ## c)
 
 
-```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
+```{r, echo = F, eval = T, out.width = "50%"}
 n_obs = 36
-obs36 <- unique(ceiling(runif(n_obs,0,900)))
-while(length(obs36)<n_obs){
-  obs36 <- unique(c(obs36,ceiling(runif(1,0,900))))
-}
+set.seed(12)
+obs36 <- sample(1:900)[1:n_obs]
 x_loc36 <- obs36%%30
 y_loc36 <- obs36%/%30+1
 coordinates = matrix(c(x_loc36,y_loc36), nrow = n_obs, ncol = 2)
@@ -557,10 +557,8 @@ ggplot() +
   geom_line(data = df, aes(x = x, y = y, colour = "Theoretical")) +  
   geom_point(data = df2, aes(y = v, x = u, colour = "Empirical")) + 
   xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical and theoretical variogram")
-```
 
 
-```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
 parameters <- likfit(messages = F, coords = dat, data = sample, ini.cov.pars = c(1,10), cov.model = "exponential")
 parameters2 <- likfit(messages = F, coords = coordinates, data = datapoints, ini.cov.pars = c(1,10), cov.model = "exponential")
 
@@ -578,10 +576,7 @@ ggplot() +
 
 ```{r, echo = F, eval = T, out.width = "33%"}
 n_obs = 9
-obs9 <- unique(ceiling(runif(n_obs,0,900)))
-while(length(obs9)<n_obs){
-  obs9 <- unique(c(obs9,ceiling(runif(1,0,900))))
-} 
+obs9 <- sample(1:900)[1:n_obs]
 x_loc9 <- obs9%%30
 y_loc9 <- obs9%/%30+1
 coordinates9 = matrix(c(x_loc9,y_loc9), nrow = n_obs, ncol = 2)
@@ -603,10 +598,7 @@ v1<-ggplot() +
   xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of maxlik... and theoretical variogram")
 
 n_obs = 64
-obs64 <- unique(ceiling(runif(n_obs,0,900)))
-while(length(obs64)<n_obs){
-  obs64 <- unique(c(obs64,ceiling(runif(1,0,900))))
-} 
+obs64 <- sample(1:900)[1:n_obs] 
 x_loc64 <- obs64%%30
 y_loc64 <- obs64%/%30+1
 coordinates64 = matrix(c(x_loc64,y_loc64), nrow = n_obs, ncol = 2)
@@ -629,10 +621,7 @@ v2<-ggplot() +
   xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of maxlik... and theoretical variogram")
 
 n_obs = 100
-obs100 <- unique(ceiling(runif(n_obs,0,900)))
-while(length(obs100)<n_obs){
-  obs100 <- unique(c(obs100,ceiling(runif(1,0,900))))
-} 
+obs100 <- sample(1:900)[1:n_obs]
 x_loc100 <- obs100%%30
 y_loc100 <- obs100%/%30+1
 coordinates100 = matrix(c(x_loc100,y_loc100), nrow = n_obs, ncol = 2)
