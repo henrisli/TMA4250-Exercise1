@@ -391,13 +391,14 @@ This is a quadratic optimization problem with linear constraints. Thus, it is po
 \end{align*}
 with 
 $$\hat{\boldsymbol \alpha} = [\boldsymbol \Sigma_d^\rho]^{-1} \Big[\boldsymbol \rho_0 - \mathbf{G}_d^T\big[\mathbf{G}_d[\boldsymbol \Sigma_d^\rho]^{-1}\mathbf{G}_d^T\big]^{-1}\big[\mathbf{G}_d[\boldsymbol \Sigma_d^\rho]^{-1}\boldsymbol \rho_0 - \mathbf{g}_\mathbf{x_0}\big]\Big].$$
+
 ## c)
 We now let the reference variable $\mathbf{x} \in D \subset \mathbb{R}^2$ be denoted $\mathbf{x} = (x_v,x_h)$ and set $n_g = 6$. Then we define the set of known polynomial functions $\mathbf{g}(\mathbf{x})$ to be all polynomial $x_v^k x_h^l$ for $(k,l) \in \{(0,0),(1,0),(0,1),(1,1),(2,0),(0,2)\}$. The resulting $n_g$-vector $\mathbf{g}(\mathbf{x})$ will be
 $$\mathbf{g}(\mathbf{x}) = \{1,x_v, x_h, x_vx_h, x_v^2, x_h^2\}.$$
 This gives the following expectation value for $r(\mathbf{x})$
 $$\mathbf{E}(r(\mathbf{x})) = \mathbf{g}(\mathbf{x})^T\boldsymbol \beta_r = \beta_1 + x_v \beta_2 + x_h \beta_3 + x_v x_h \beta_4 + x_v^2 \beta_5 + x_h^2 \beta_6.$$
 
-We can interpret the model such that mean is the level around which the elevation fluctuates, while the variance is the degree of fluctuation. The level is here a second order polynomial in the coordinates, while the variance is constant over the coordinates. 
+We can interpret the model such that mean is the level around which the elevation fluctuates, while the variance is the degree of fluctuation. The level is here a second order polynomial in the coordinates, while the prior variance is constant over the coordinates. 
 
 ```{r, echo = F, eval = T, out.width = "50%"}
 locations = expand.grid(seq(1,315,l=315), seq(1,315,l=315))
@@ -407,21 +408,26 @@ loc$z = rep(0,length(loc$Var1))
 # 2nd
 kriging_2nd <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("2nd", as.geodata(data)), trend.l = trend.spatial("2nd", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100)), output = output.control(messages = F)) 
 
+pred_brk = seq(650, 1000, l = 65)
+var_brk = seq(0, 1700, l = 65)
+color_table = tim.colors(64) 
+
 x = seq(1, 315, l = 315)
 y = seq(1, 315, l = 315)
-image.plot(x = x, y = y, z = matrix(kriging_2nd$predict, nrow = 315))
+image.plot(x = x, y = y, z = matrix(kriging_2nd$predict, nrow = 315), main = "Prediction. Second order mean function", breaks = pred_brk, col = color_table)
+image.plot(x = x, y = y, z = matrix(kriging_2nd$krige.var, nrow = 315), main = "Variance. Second order mean function", breaks = var_brk, col = color_table)
 
 # 1st
 kriging_1st <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("1st", as.geodata(data)), trend.l = trend.spatial("1st", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100)), output = output.control(messages = F)) 
 
-image.plot(x = x, y = y, z = matrix(kriging_1st$predict, nrow = 315))
+image.plot(x = x, y = y, z = matrix(kriging_1st$predict, nrow = 315), main = "Prediction. First order mean function", breaks = pred_brk, col = color_table)
+image.plot(x = x, y = y, z = matrix(kriging_1st$krige.var, nrow = 315), main = "Variance. First order mean function", breaks = var_brk, col = color_table)
 
 ```
--Is it natural to change the value of the variance if the parametrization of expectation function is changed? Present the results and comment on them, and the relation to the results using a higher-order expectation function.
 
-If we change the parametrization of the expectation function, it is natural the change the value of the variance parameter. For example when we reduce the degree of the polynomial in the expectation function we might have to compensate with larger variance to get bigger fluctutations around this new mean level. 
+If we change the parametrization of the expectation function, it could be natural also to change the value of the prior variance, $\sigma_r^2$. For example when we reduce the degree of the polynomial in the expectation function it could be that we might have to compensate with a larger prior variance to get bigger fluctutations around this new 'less flexible' mean. But in practice it would be more natural to estimate the prior variance using maximum likelihood, with our data points.
 
-The kriging predictions looks very similar (second degree polynomial to the left, and first degree to the right), but there are some differences, particularly in the corners of the field, which might be due to the difference in order of the expectation function.
+The kriging predictions looks very similar, but there are some differences, which become most clear in the corners of the field. The same is true for the kriging variances. It seems like it is the model with second order expectation which has the largest kriging variances. From these plots it is clear where the observations are located. Moving further away from the observations we see that the kriging variance increases. It always stays below the prior variance ($2500$), with the maximum value being just above $1600$, obtained in the bottom left corner of the first variance plot. 
 
 ## d)
 Since the random field is Gaussian, the best linear predictor (our kriging predictor) coencides with the conditional expectation, $E(r_0 | \mathbf{r^d})$. The Gaussian distribution is closed under conditioning, and it follows that $$r_0 | \mathbf{r^d} \sim \phi(r_0; \hat{r}, \sigma^2_{\hat{r}}),$$ where $\sigma^2_{\hat{r}}$ is as previously defined. 
@@ -452,12 +458,14 @@ kriging_2nd_5 <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, loc
 
 x = seq(1, 315, l = 315)
 y = seq(1, 315, l = 315)
-image.plot(x = x, y = y, z = matrix(kriging_2nd_5$predict, nrow = 315))
+image.plot(x = x, y = y, z = matrix(kriging_2nd_5$predict, nrow = 315), main = "Prediction. Second order mean function. \nMeasurement error variance = 5", breaks = pred_brk, col = color_table)
+image.plot(x = x, y = y, z = matrix(kriging_2nd_5$krige.var, nrow = 315), main = "Variance. Second order mean function. \nMeasurement error variance = 5", breaks = var_brk, col = color_table)
 
 # 1st
 kriging_1st_5 <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("1st", as.geodata(data)), trend.l = trend.spatial("1st", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100), nugget = 5), output = output.control(messages = F)) 
 
-image.plot(x = x, y = y, z = matrix(kriging_1st_5$predict, nrow = 315))
+image.plot(x = x, y = y, z = matrix(kriging_1st_5$predict, nrow = 315), main = "Prediction. First order mean function. \nMeasurement error variance = 5", breaks = pred_brk, col = color_table)
+image.plot(x = x, y = y, z = matrix(kriging_1st_5$krige.var, nrow = 315), main = "Variance. First order mean function. \nMeasurement error variance = 5", breaks = var_brk, col = color_table)
 
 # nugget = 25
 
@@ -466,20 +474,21 @@ kriging_2nd_25 <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, lo
 
 x = seq(1, 315, l = 315)
 y = seq(1, 315, l = 315)
-image.plot(x = x, y = y, z = matrix(kriging_2nd_25$predict, nrow = 315))
+image.plot(x = x, y = y, z = matrix(kriging_2nd_25$predict, nrow = 315), main = "Prediction. Second order mean function. \nMeasurement error variance = 25", breaks = pred_brk, col = color_table)
+image.plot(x = x, y = y, z = matrix(kriging_2nd_25$krige.var, nrow = 315), main = "Variance. Second order mean function. \nMeasurement error variance = 25", breaks = var_brk, col = color_table)
 
 # 1st
 kriging_1st_25 <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("1st", as.geodata(data)), trend.l = trend.spatial("1st", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100), nugget = 25), output = output.control(messages = F)) 
 
-image.plot(x = x, y = y, z = matrix(kriging_1st_25$predict, nrow = 315))
-
+image.plot(x = x, y = y, z = matrix(kriging_1st_25$predict, nrow = 315), main = "Prediction. First order mean function. \nMeasurement error variance = 25", breaks = pred_brk, col = color_table)
+image.plot(x = x, y = y, z = matrix(kriging_2nd_25$krige.var, nrow = 315), main = "Variance. First order mean function. \nMeasurement error variance = 25", breaks = var_brk, col = color_table)
 ```
 
-The result is plotted above. The plots to the left have second order expectation functions while the ones to the right have first order. The plots at the top have measurement variance $5$, while the plots at the bottom have measurement variance $25$. They all seem very similar, but there seems to be a much bigger difference going from left to right than from top to bottom. 
+The result is plotted above. Again, it is hard to see a clear difference in the plots of the kriging predictions, but it is possible if you look in the corners of the plot. The kriging variances differ more clearly. For example are we able to see how the measurement error variance increases the kriging variance. This is particularly clear in the plots of the variances of the model with first order expectation function and different measurement error variances. Also here the kriging variance takes on larger values for the model with second order expectation function. The largest being just below $1700$, obtained in the bottom left corner. The variances always stays below the prior variance, and tends towards this with increasing distance from the observations. 
 
 ## f)
 
-Our experiences using real data in this exercise has been useful, and it has been helpful to visualize the data in order to get a better feeling with the models and methods used. But it could be useful to get introduced to some of the algorithms used for making the predictions, instead of just putting the data in a black box. 
+Our experiences using real data in this exercise has been useful. It has been helpful to visualize the data in order to get a better feeling with the models and methods used. But it could be useful to get introduced to some of the algorithms used for making the predictions, instead of just putting the data in a black box. 
 
 # Problem 3: Parameter estimation
 We consider the stationary Gaussian RF $\{r(\mathbf{x})$; $\mathbf{x} \in D \subset \mathbb{R}^2\}$ with $D: [(1,30), (1,30)]$, with 
