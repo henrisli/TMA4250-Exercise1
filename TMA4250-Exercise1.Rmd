@@ -81,12 +81,12 @@ For all correlation functions $\rho_r(0)  =1$, and $\rho_r(\tau) \in [-1,1]$; $\
 
 The correlation functions define correlation between points in our random field. This means that larger values of the correlation function implies a smoother random field. From the plotted correlation function, we see that the function values increases for larger values of $\nu_r$. Consequently, larger values of $\nu_r$ implies smoother random fields for both these correlation functions.
 
-We now define the variogram function, which for stationary Gaussian random fields is defined as $\gamma_r(\tau) = 2\sigma^2_r[1-\rho_r(\tau)]$. Then, we display the variogram functions associated with the previously plotted correlation functions for $\sigma_r^2 = 1$.
+We now define the variogram function, which for stationary Gaussian random fields is defined as $\gamma_r(\tau) = \sigma^2_r[1-\rho_r(\tau)]$. Then, we display the variogram functions associated with the previously plotted correlation functions for $\sigma_r^2 = 1$.
 ```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
-gamma_1 = 2*(1-mat_1)
-gamma_2 = 2*(1-mat_2)
-gamma_3 = 2*(1-pexp_1)
-gamma_4 = 2*(1-pexp_2)
+gamma_1 = (1-mat_1)
+gamma_2 = (1-mat_2)
+gamma_3 = (1-pexp_1)
+gamma_4 = (1-pexp_2)
 
 df = data.frame(y1 = gamma_1, y2 = gamma_2, y3 = gamma_3, y4 = gamma_4, value = x)
 
@@ -95,7 +95,7 @@ ggplot(df, aes(x, y = value, color = variable)) +
   geom_line(aes(y = y2, colour = "y2")) +
   geom_line(aes(y = y3, colour = "y3")) + 
   geom_line(aes(y = y4, colour = "y4")) + 
-  scale_color_manual(labels = c(expression(paste("Matern ",nu, "=1")), expression(paste("Matern ",nu, "=3")),expression(paste("PExp ", nu, "=1")), expression(paste("PExp ", nu, "=1.9"))), values = c("red", "blue", "green", "purple")) + xlab(expression(paste(tau))) + ylab(expression(paste(rho, "(", tau,")"))) + ggtitle(expression(paste("Variogram for two correlation functions for different values of ", nu)))+
+  scale_color_manual(labels = c(expression(paste("Matern ",nu, "=1")), expression(paste("Matern ",nu, "=3")),expression(paste("PExp ", nu, "=1")), expression(paste("PExp ", nu, "=1.9"))), values = c("red", "blue", "green", "purple")) + xlab(expression(paste(tau))) + ylab(expression(paste(gamma, "(", tau,")"))) + ggtitle(expression(paste("Variogram for two correlation functions for different values of ", nu)))+
   theme(legend.title=element_blank())
 ```
 
@@ -196,7 +196,10 @@ with
 \end{align*}
 
 We use as prior model one of the realizations with $\sigma_r^2 = 5$, $\nu = 1$ and Matern correlation function. Then, a prediction of the spatial variable $\{\hat{r}(\mathbf{x}); \mathbf{x}\in L\}$ represented by the vector $\hat{\mathbf{r}}$ is taken to minimize squared error, yielding
-$$\hat{\mathbf{r}} = \mathbf{E}[\mathbf{r}|\mathbf{d}] = \boldsymbol \mu_{r|d}.$$
+\begin{equation}
+\hat{\mathbf{r}} = \mathbf{E}[\mathbf{r}|\mathbf{d}] = \boldsymbol \mu_{r|d}.
+\label{rhat}
+\end{equation}
 The associated $(1-\alpha)$ prediction intervals are,
 $$PI_\alpha = \boldsymbol \mu_{r|d} \pm z_{\alpha/2} \boldsymbol \sigma_{r|d},$$
 where $\boldsymbol \sigma_{r|d}$ is a $n$-vector containing the diagonal elements of the standard deviation matrix $\boldsymbol \Sigma_{r|d}^\sigma$.
@@ -219,11 +222,11 @@ std_rd_zero = sqrt(diag(sigma_rd_zero))
 std_rd_zero[30] = 0
 std_rd_zero[25] = 0
 std_rd_zero[10] = 0
-lower_bound = mu_rd_zero - qnorm(0.95)*std_rd_zero
-upper_bound = mu_rd_zero + qnorm(0.95)*std_rd_zero
+lower_bound_zero = mu_rd_zero - qnorm(0.95)*std_rd_zero
+upper_bound_zero = mu_rd_zero + qnorm(0.95)*std_rd_zero
 
 
-df = data.frame(y1 = mu_rd_zero, y2 = c(rep(NA,9), observation[1], rep(NA,14), observation[2], rep(NA,4), observation[3], rep(NA,20)), y3 = lower_bound, y4 = upper_bound)
+df = data.frame(y1 = mu_rd_zero, y2 = c(rep(NA,9), observation[1], rep(NA,14), observation[2], rep(NA,4), observation[3], rep(NA,20)), y3 = lower_bound_zero, y4 = upper_bound_zero)
 ggplot(df, aes(x, y = value, color = variable)) + 
     geom_line(aes(y = y1, col = "y1")) + 
     geom_point(aes(y = y2, col = "y2")) + 
@@ -237,10 +240,10 @@ sigma_dr = diag(3)*sigma_e
 mu_rd_nonzero = mu_r + 5*sigma_r_rho%*%t(H)%*%solve(5*H%*%sigma_r_rho%*%t(H)+sigma_dr)%*%(observation-H%*%mu_r)
 sigma_rd_nonzero = 5*sigma_r_rho-5*sigma_r_rho%*%t(H)%*%solve(5*H%*%sigma_r_rho%*%t(H)+sigma_dr)%*%H%*%sigma_r_rho*5
 std_rd_nonzero = sqrt(diag(sigma_rd_nonzero))
-lower_bound = mu_rd_nonzero - qnorm(0.95)*std_rd_nonzero
-upper_bound = mu_rd_nonzero + qnorm(0.95)*std_rd_nonzero
+lower_bound_nonzero = mu_rd_nonzero - qnorm(0.95)*std_rd_nonzero
+upper_bound_nonzero = mu_rd_nonzero + qnorm(0.95)*std_rd_nonzero
 
-df = data.frame(y1 = mu_rd_nonzero, y2 = c(rep(NA,9), observation[1], rep(NA,14), observation[2], rep(NA,4), observation[3], rep(NA,20)), y3 = lower_bound, y4 = upper_bound)
+df = data.frame(y1 = mu_rd_nonzero, y2 = c(rep(NA,9), observation[1], rep(NA,14), observation[2], rep(NA,4), observation[3], rep(NA,20)), y3 = lower_bound_nonzero, y4 = upper_bound_nonzero)
 ggplot(df, aes(x, y = value, color = variable)) + 
     geom_line(aes(y = y1, col = "y1")) + 
     geom_point(aes(y = y2, col = "y2")) + 
@@ -253,73 +256,76 @@ ggplot(df, aes(x, y = value, color = variable)) +
 From the plots, we see that with no observation error, the prediction coincides with the observations in the points where we have an observation. Also, in these points there is no uncertainty, so the lower and upper bounds are also equal the observations. When observation error is present, we get uncertainty in the observed points. In addition, adding an observation error leads to larger uncertainty, and thus variance, over the entire prediction.
 
 ## e)
-We now go on to simulate 100 realizations from the posterior distribution, using the mean and covariance matrix previously computed. Then, we make a prediction based on the 100 samples and create a 90% prediction interval by computing the empirical variance.
+We now go on to simulate 100 realizations from the posterior distribution, using the mean and covariance matrix previously computed. Then, we make a prediction based on the 100 samples and create a 90% empirical prediction interval by ordering the realizations and plotting the 5th smallest and largest value for each $x\in L$.
 
 ```{r, echo = F, eval = T,out.width = "50%"}
-sample = mvrnorm(100, mu_rd_zero, sigma_rd_zero)
-prediction = apply(sample,2,mean)
-std_empirical = sqrt(apply(sample,2,var))
-lower = prediction - qt(0.95,99)*std_empirical*sqrt(1+1/100)
-upper = prediction + qt(0.95,99)*std_empirical*sqrt(1+1/100)
+sample_zero = mvrnorm(100, mu_rd_zero, sigma_rd_zero)
+prediction_zero = apply(sample_zero,2,mean)
+std_empirical_zero = sqrt(apply(sample_zero,2,var))
+lower_zero = prediction_zero - qt(0.95,99)*std_empirical_zero*sqrt(1+1/100)
+upper = prediction_zero + qt(0.95,99)*std_empirical_zero*sqrt(1+1/100)
 
-rownames(sample) = paste("trial", seq(100), sep="")
-colnames(sample) = paste("x", seq(50), sep="")
+rownames(sample_zero) = paste("trial", seq(100), sep="")
+colnames(sample_zero) = paste("x", seq(50), sep="")
 
-dat = as.data.frame(sample)
-dat$trial = rownames(dat)
-mdat = melt(dat, id.vars="trial")
-mdat$x = as.numeric(gsub("x", "", mdat$variable))
-df = data.frame(x = seq(1,50), pred = prediction, lb = lower, ub = upper)
+pred_interval_zero <- apply(sample_zero,2,sort)
+
+dat_zero = as.data.frame(sample_zero)
+dat_zero$trial = rownames(dat_zero)
+mdat_zero = melt(dat_zero, id.vars="trial")
+mdat_zero$x = as.numeric(gsub("x", "", mdat_zero$variable))
+#df_zero = data.frame(x = seq(1,50), pred = prediction_zerp, lb = lower_zero, ub = upper_zero)
+df_zero = data.frame(x = seq(1,50), pred = prediction_zero, lb = pred_interval_zero[5,], ub = pred_interval_zero[95,])
 
 ggplot() +
     theme_bw() +
     theme(panel.grid=element_blank()) +
-    geom_line(data = mdat, aes(x=x, y=value, group=trial), size=0.2, alpha=0.1) +
-    geom_line(data = df, aes(x = x, y = pred), size = 1, col = 'red') + 
-    geom_line(data = df, aes(x = x, y = lb), size = 1, col = 'blue', linetype = "dashed") + 
-    geom_line(data = df, aes(x = x, y = ub), size = 1, col = 'blue', linetype = "dashed") + 
+    geom_line(data = mdat_zero, aes(x=x, y=value, group=trial), size=0.2, alpha=0.1) +
+    geom_line(data = df_zero, aes(x = x, y = pred), size = 1, col = 'red') + 
+    geom_line(data = df_zero, aes(x = x, y = lb), size = 1, col = 'blue', linetype = "dashed") + 
+    geom_line(data = df_zero, aes(x = x, y = ub), size = 1, col = 'blue', linetype = "dashed") + 
     ggtitle(bquote("Prediction and 100 realizations of posterior Gaussian RF with "*sigma[epsilon]^2*"=0"))
 
-sample = mvrnorm(100, mu_rd_nonzero, sigma_rd_nonzero)
+sample_nonzero = mvrnorm(100, mu_rd_nonzero, sigma_rd_nonzero)
+prediction_nonzero = apply(sample_nonzero,2,mean)
+std_empirical_nonzero = sqrt(apply(sample_nonzero,2,var))
+lower_nonzero = prediction_nonzero - qt(0.95,99)*std_empirical_nonzero*sqrt(1+1/100)
+upper = prediction_nonzero + qt(0.95,99)*std_empirical_nonzero*sqrt(1+1/100)
 
+rownames(sample_nonzero) = paste("trial", seq(100), sep="")
+colnames(sample_nonzero) = paste("x", seq(50), sep="")
 
-prediction = apply(sample,2,mean)
-std_empirical = sqrt(apply(sample,2,var))
-lower = prediction - qt(0.95,99)*std_empirical*sqrt(1+1/100)
-upper = prediction + qt(0.95,99)*std_empirical*sqrt(1+1/100)
+pred_interval_nonzero <- apply(sample_nonzero,2,sort)
 
-
-rownames(sample) = paste("trial", seq(100), sep="")
-colnames(sample) = paste("x", seq(50), sep="")
-
-dat = as.data.frame(sample)
-dat$trial = rownames(dat)
-mdat = melt(dat, id.vars="trial")
-mdat$x = as.numeric(gsub("x", "", mdat$variable))
-df = data.frame(x = seq(1,50), pred = prediction, lb = lower, ub = upper)
+dat_nonzero = as.data.frame(sample_nonzero)
+dat_nonzero$trial = rownames(dat_nonzero)
+mdat_nonzero = melt(dat_nonzero, id.vars="trial")
+mdat_nonzero$x = as.numeric(gsub("x", "", mdat_nonzero$variable))
+#df_nonzero = data.frame(x = seq(1,50), pred = prediction_zerp, lb = lower_nonzero, ub = upper_nonzero)
+df_nonzero = data.frame(x = seq(1,50), pred = prediction_nonzero, lb = pred_interval_nonzero[5,], ub = pred_interval_nonzero[95,])
 
 ggplot() +
     theme_bw() +
     theme(panel.grid=element_blank()) +
-    geom_line(data = mdat, aes(x=x, y=value, group=trial), size=0.2, alpha=0.1) +
-    geom_line(data = df, aes(x = x, y = pred), size = 1, col = 'red') + 
-    geom_line(data = df, aes(x = x, y = lb), size = 1, col = 'blue', linetype = "dashed") + 
-    geom_line(data = df, aes(x = x, y = ub), size = 1, col = 'blue', linetype = "dashed") + 
+    geom_line(data = mdat_nonzero, aes(x=x, y=value, group=trial), size=0.2, alpha=0.1) +
+    geom_line(data = df_nonzero, aes(x = x, y = pred), size = 1, col = 'red') + 
+    geom_line(data = df_nonzero, aes(x = x, y = lb), size = 1, col = 'blue', linetype = "dashed") + 
+    geom_line(data = df_nonzero, aes(x = x, y = ub), size = 1, col = 'blue', linetype = "dashed") + 
     ggtitle(bquote("Prediction and 100 realizations of posterior Gaussian RF with "*sigma[epsilon]^2*"=0.25"))
 ```
+From the plots, we again see that with no observation error, the prediction coincides with the observations in the points where we have an observation, and we get zero prediction variance. However, because we here only have simulated values (and only 100 simulations), the variance with observation error is not larger for all other points than the variance without observation error.
 
-Discuss the relation between the model parameters and the realizations,
-and discuss the relation between the analytically and empirically obtained
-predictions with prediction intervals!!!!!!!!!
-
+Also, we see that the variance and prediction based on the 100 samples coincides well with the theoretical prediction and variance. Still, we observe lower degree of smoothness in the lines, which is as expected when comparing simulated values with theoretical quantities.
 ## f)
-SPØR OM DENNE!!!!
-
-We use the previously generated 100 realizations with $\sigma_\epsilon^2 = 0$ to provide a prediction $\hat{A}_r$ for the non-linear function on $\{r(x);x\in D\}$,
+We use the previously generated $n=100$ realizations $\{r_i(x)\}, i \in 1,\dots,n$ with $\sigma_\epsilon^2 = 0$ to provide a prediction $\hat{A}_r$ for the non-linear function on $\{r(x);x\in D\}$,
 $$A_r = \int_D I(r(x)>2)dx.$$
-We also compute the prediction variance. An alternative predictor is,
-$$\tilde{A}_r = \sum_{x\in L} I(\hat{r}(x)>2).$$
-This is also computed.
+The predictor $\hat{A}_r$ will be
+$$\hat{A}_r = \frac{1}{n} \sum_{i=1}^n A_{r_i}.$$
+We also compute the prediction variance, which will be the sample variance, given as
+$$ \text{Var}(\hat{A}_r) = \frac{1}{n-1}\sum_{i=1}^n (A_{r_i}-\hat{A}_r)^2.$$
+An alternative predictor is,
+$$\tilde{A}_r = \sum_{x\in L} I(\hat{r}(x)>2),$$
+with $\hat{r}(x)$ given as in equation \eqref{rhat}. This value is also computed.
 
 ```{r, echo = F, eval = T}
 extract <- function(sample){
@@ -338,11 +344,12 @@ A_tilde = apply(r_hat,2,extract)
 cat("A tilde: ", mean(A_tilde), '\n')
 cat("Predicted variance of A hat: ", var(A_hat))
 ```
-Jensen's inequality states that for a random variable $X$ and a convex function $\psi$,
+From the print-out, we see that $\hat{A}_r > \tilde{A}_r$. To shed some light on this result, we make use of Jensen's inequality, which states that for a random variable $X$ and a convex function $\psi$,
 $$\psi(E[X]) \leq E[\psi(X)].$$
-Taking $X = r(x)$ and $\psi(\xi) = I(\xi >2)$, this implies,???
+We then note that $\hat{r}(x) = E[r_i(x)]$, and with $\psi(\xi) = I(\xi >2)$, we get after integrating over $D$ (summing over $L$),
+$$\tilde{A}_r = \sum_{x \in L} I(\hat{r}(x)>2)\leq E\Big[\int_D I(r_i(x)>2)dx\Big] = \hat{A}_r.$$
 ## g)
-
+We now want to sum up our experiences made during this exercise. Firstly, we have investigated and achieved greater understanding as to why correlation functions need to be positive definite. Furhtermore, the choice of correlation function and correlation function parameters has great implications for the structure of the Gaussian RF. By choosing a suitable correlation function, we can impact both smoothness and overall variance of the resulting RF. Including an observation error on the observations also has great impact on the prediction variance in those points, and smaller impact on points far away from the observations. We have also gotten a greater understanding in making predictions on Gaussian RFs, and experienced an application of Jensen's inequality.
 
 # Problem 2: Gaussian RF - real data
 
