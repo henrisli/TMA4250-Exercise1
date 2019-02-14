@@ -516,7 +516,7 @@ corr <- function(x, xi){
 corrmatrix = corr(distances, xi_r)
 covmatrix = sigma_r*corrmatrix
 mu_r = rep(0,900)
-
+set.seed(1234567)
 sample = mvrnorm(1,mu_r,covmatrix)
 
 #mtrx3d <- data.frame(x = x, y = y, z = sample)
@@ -532,6 +532,7 @@ image.plot(x = x, y = y, z = matrix(sample, ncol = 30))
 From the display, it is reasonable to assume that the generated realization comes from a Gaussian RF. 
 
 ## b)
+We now compute the empirical variogram based on the exact observations of the full realization displayed above. Then, the estimated variogram is displayed along with the correct variogram function $\gamma(\tau) = 1 - \rho(\tau)$.
 ```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
 vario <- variog(messages = F, coords = dat, data = sample)
 df <- data.frame(x = seq(0,40))
@@ -542,55 +543,54 @@ ggplot() +
   geom_point(data = df2, aes(y = v, x = u, colour = "Empirical")) + 
   xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical and theoretical variogram")
 ```
+From the plot, we see that the empirical variogram differs somewhat from the theoretical variogram. The two variograms coincide well for small values of $\tau$, but with greater $\tau$ the variograms differ significantly. This is as to be expected, because the empirical variogram is generated on relatively few observations and only one realization.
 
 
 ## c)
+We now generate 36 locations uniformly randomly on the grid $L$. The we compute the empirical variogram estimate based on the corresponding 36 exact observations. The estimate is then displayed jointly with the theoretical variogram function.
 
-
-```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
+Then we consider the model parameters $\sigma_r^2$ and $\xi_r$ to be unknown. These are then estimated by a maximum likelihood criterion based on exact observation of the full realization and based on the 36 observations. The two estimated variogram functions are then jointly displayed with the correct variogram function.
+```{r, echo = F, eval = T, out.width = "50%"}
 n_obs = 36
-obs36 <- unique(ceiling(runif(n_obs,0,900)))
-while(length(obs36)<n_obs){
-  obs36 <- unique(c(obs36,ceiling(runif(1,0,900))))
-}
+set.seed(12)
+obs36 <- sample(1:900)[1:n_obs]
 x_loc36 <- obs36%%30
 y_loc36 <- obs36%/%30+1
-coordinates = matrix(c(x_loc36,y_loc36), nrow = n_obs, ncol = 2)
+coordinates36 = matrix(c(x_loc36,y_loc36), nrow = n_obs, ncol = 2)
 
-datapoints = sample[obs36]
-vario2 <- variog(messages = F,coords = coordinates, data = datapoints)
-df <- data.frame(x = seq(0,max(as.matrix(dist(coordinates)))))
+datapoints36 = sample[obs36]
+vario2 <- variog(messages = F,coords = coordinates36, data = datapoints36)
+df <- data.frame(x = seq(0,max(as.matrix(dist(coordinates36)))))
 df$y = sigma_r*(1-corr(df$x, xi_r))
 df2 <- data.frame(v = vario2$v, u = vario2$u)
 ggplot() + 
   geom_line(data = df, aes(x = x, y = y, colour = "Theoretical")) +  
   geom_point(data = df2, aes(y = v, x = u, colour = "Empirical")) + 
-  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical and theoretical variogram")
-```
+  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical and theoretical variogram with 36 observations") + theme(plot.title = element_text(size = 8))
 
 
-```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
 parameters <- likfit(messages = F, coords = dat, data = sample, ini.cov.pars = c(1,10), cov.model = "exponential")
-parameters2 <- likfit(messages = F, coords = coordinates, data = datapoints, ini.cov.pars = c(1,10), cov.model = "exponential")
+parameters36 <- likfit(messages = F, coords = coordinates36, data = datapoints36, ini.cov.pars = c(1,10), cov.model = "exponential")
 
 df <- data.frame(x = seq(0,40))
 df$y1 = sigma_r*(1-corr(df$x, xi_r))
 df$y2 = parameters$cov.pars[1]*(1-corr(df$x,parameters$cov.pars[2]))
-df$y3 = parameters2$cov.pars[1]*(1-corr(df$x,parameters2$cov.pars[2]))
+df$y3 = parameters36$cov.pars[1]*(1-corr(df$x,parameters36$cov.pars[2]))
 ggplot() + 
   geom_line(data = df, aes(x = x, y = y1, colour = "Theoretical")) +  
-  geom_line(data = df, aes(y = y2, x = x, colour = "Full")) +
-  geom_line(data = df, aes(y = y3, x = x, colour = "Partial36")) +
-  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of maxlik... and theoretical variogram")
+  geom_line(data = df, aes(y = y2, x = x, colour = "Full realization")) +
+  geom_line(data = df, aes(y = y3, x = x, colour = "36 observations")) +
+  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of estimated and theoretical variogram")
 ```
-## d)
+From the plots, we see that the empirical variogram based on only 36 observations fits the correct variogram worse than the one based on all 900 observations. However, the estimated variogram based on the 36 observations fits the correct variogram better than the estimated variogram based on the full realization. This result seems spurious, as adding more observations should in theory provide a better estimate of the true parameters.
 
+
+## d)
+We then repeat the process with 9, 64 and 100 exact observations from the realization, and present the results.
 ```{r, echo = F, eval = T, out.width = "33%"}
+set.seed(1234)
 n_obs = 9
-obs9 <- unique(ceiling(runif(n_obs,0,900)))
-while(length(obs9)<n_obs){
-  obs9 <- unique(c(obs9,ceiling(runif(1,0,900))))
-} 
+obs9 <- sample(1:900)[1:n_obs]
 x_loc9 <- obs9%%30
 y_loc9 <- obs9%/%30+1
 coordinates9 = matrix(c(x_loc9,y_loc9), nrow = n_obs, ncol = 2)
@@ -606,16 +606,13 @@ df$y2 = parameters$cov.pars[1]*(1-corr(df$x,parameters$cov.pars[2]))
 df$y3 = parameters9$cov.pars[1]*(1-corr(df$x,parameters9$cov.pars[2]))
 v1<-ggplot() + 
   geom_line(data = df, aes(x = x, y = y1, colour = "Theoretical")) +  
-  geom_line(data = df, aes(y = y2, x = x, colour = "Full")) +
-  geom_line(data = df, aes(y = y3, x = x, colour = "Partial9")) +
-  geom_point(data = df2, aes(y = v, x = u, colour = "Empirical")) + 
-  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of maxlik... and theoretical variogram")
+  geom_line(data = df, aes(y = y2, x = x, colour = "Full realization")) +
+  geom_line(data = df, aes(y = y3, x = x, colour = "9 observations")) +
+  geom_point(data = df2, aes(y = v, x = u, colour = "Empirical 9 obs")) + 
+  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical, estimated and theoretical variogram with 9 observations") + theme(plot.title = element_text(size = 8))
 
 n_obs = 64
-obs64 <- unique(ceiling(runif(n_obs,0,900)))
-while(length(obs64)<n_obs){
-  obs64 <- unique(c(obs64,ceiling(runif(1,0,900))))
-} 
+obs64 <- sample(1:900)[1:n_obs] 
 x_loc64 <- obs64%%30
 y_loc64 <- obs64%/%30+1
 coordinates64 = matrix(c(x_loc64,y_loc64), nrow = n_obs, ncol = 2)
@@ -632,16 +629,13 @@ df$y2 = parameters$cov.pars[1]*(1-corr(df$x,parameters$cov.pars[2]))
 df$y3 = parameters64$cov.pars[1]*(1-corr(df$x,parameters64$cov.pars[2]))
 v2<-ggplot() + 
   geom_line(data = df, aes(x = x, y = y1, colour = "Theoretical")) +  
-  geom_line(data = df, aes(y = y2, x = x, colour = "Full")) +
-  geom_line(data = df, aes(y = y3, x = x, colour = "Partial64")) +
-  geom_point(data = df2, aes(y = v, x = u, colour = "Empirical")) + 
-  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of maxlik... and theoretical variogram")
+  geom_line(data = df, aes(y = y2, x = x, colour = "Full realization")) +
+  geom_line(data = df, aes(y = y3, x = x, colour = "64 observations")) +
+  geom_point(data = df2, aes(y = v, x = u, colour = "Empirical 64 obs")) + 
+  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical, estimated and theoretical variogram with 64 observations") + theme(plot.title = element_text(size = 8))
 
 n_obs = 100
-obs100 <- unique(ceiling(runif(n_obs,0,900)))
-while(length(obs100)<n_obs){
-  obs100 <- unique(c(obs100,ceiling(runif(1,0,900))))
-} 
+obs100 <- sample(1:900)[1:n_obs]
 x_loc100 <- obs100%%30
 y_loc100 <- obs100%/%30+1
 coordinates100 = matrix(c(x_loc100,y_loc100), nrow = n_obs, ncol = 2)
@@ -657,14 +651,14 @@ df$y2 = parameters$cov.pars[1]*(1-corr(df$x,parameters$cov.pars[2]))
 df$y3 = parameters100$cov.pars[1]*(1-corr(df$x,parameters100$cov.pars[2]))
 v3<-ggplot() + 
   geom_line(data = df, aes(x = x, y = y1, colour = "Theoretical")) +  
-  geom_line(data = df, aes(y = y2, x = x, colour = "Full")) +
-  geom_line(data = df, aes(y = y3, x = x, colour = "Partial100")) +
-  geom_point(data = df2, aes(y = v, x = u, colour = "Empirical")) + 
-  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of maxlik... and theoretical variogram")
+  geom_line(data = df, aes(y = y2, x = x, colour = "Full realization")) +
+  geom_line(data = df, aes(y = y3, x = x, colour = "100 observations")) +
+  geom_point(data = df2, aes(y = v, x = u, colour = "Empirical 100 obs")) + 
+  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical, estimated and theoretical variogram with 100 observations") + theme(plot.title = element_text(size = 8))
 v1
 v2
 v3
 ```
-
-
+From the plots, we see that including more observations gives a better fit to the correct variogram for both the empirical and the estimated variogram. 
+## e)
 
