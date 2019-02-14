@@ -467,7 +467,18 @@ image.plot(x = x, y = y, z = matrix(kriging_1st_25$predict, nrow = 315))
 ## f)
 
 # Problem 3: Parameter estimation
+
+We consider the stationary Gaussian RF $\{r(\mathbf{x}); \mathbf{x} \in D \subset \mathbb{R}^2\}$ with $D : [(1, 30),(1, 30)]$, with
+\begin{align*}
+E\{r(\mathbf{x})\} &= \mu_r = 0\\
+Var\{r(\mathbf{x})\} &= \sigma^2_r\\
+Corr\{r(\mathbf{x}), r(\mathbf{x}')\} &= \exp\{-\tau/\xi_r\}
+\end{align*}
+with $\tau = |\mathbf{x} − \mathbf{x}'|$.
+
 ## a)
+We discretize the Gaussian RF to get $\{r(x); x \in L\}$ on a grid $L : [30×30] \in D$. The model parameters are set to $\sigma^2_r = 2$ and $\xi_r = 15$. Then we generate one realization
+of the discretized Gaussian RF and display it.
 
 ```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
 x = rep(seq(1, 30, length.out = 30),30)
@@ -496,7 +507,7 @@ y = seq(1,30)
 
 image.plot(x = x, y = y, z = matrix(sample, ncol = 30))
 ```
-
+From the display, it is reasonable to assume that the generated realization comes from a Gaussian RF. 
 
 ## b)
 ```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
@@ -550,7 +561,7 @@ ggplot() +
   geom_line(data = df, aes(y = y3, x = x, colour = "Partial36")) +
   xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of maxlik... and theoretical variogram")
 ```
-
+## d)
 
 ```{r, echo = F, eval = T, out.width = "33%"}
 n_obs = 9
