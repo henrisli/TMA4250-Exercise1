@@ -538,8 +538,9 @@ From the plot, we see that the empirical variogram differs somewhat from the the
 
 
 ## c)
+We now generate 36 locations uniformly randomly on the grid $L$. The we compute the empirical variogram estimate based on the corresponding 36 exact observations. The estimate is then displayed jointly with the theoretical variogram function.
 
-
+Then we consider the model parameters $\sigma_r^2$ and $\xi_r$ to be unknown. These are then estimated by a maximum likelihood criterion based on exact observation of the full realization and based on the 36 observations. The two estimated variogram functions are then jointly displayed with the correct variogram function.
 ```{r, echo = F, eval = T, out.width = "50%"}
 n_obs = 36
 set.seed(12)
@@ -572,6 +573,9 @@ ggplot() +
   geom_line(data = df, aes(y = y3, x = x, colour = "Partial36")) +
   xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of maxlik... and theoretical variogram")
 ```
+From the plots, we see that the empirical variogram based on only 36 observations fits the correct variogram worse than the one based on all 900 observations. However, the estimated variogram based on the 36 observations fits the correct variogram better than the estimated variogram based on the full realization. This result seems spurious, as adding more observations should in theory provide a better estimate of the true parameters.
+
+
 ## d)
 
 ```{r, echo = F, eval = T, out.width = "33%"}
