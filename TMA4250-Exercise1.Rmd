@@ -649,7 +649,7 @@ v1<-ggplot() +
   geom_line(data = df, aes(y = y2, x = x, colour = "Full realization")) +
   geom_line(data = df, aes(y = y3, x = x, colour = "9 observations")) +
   geom_point(data = df2, aes(y = v, x = u, colour = "Empirical 9 obs")) + 
-  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical, estimated and \ntheoretical variogram with 9 observations") + theme(plot.title = element_text(size = 10))
+  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical, estimated and \ntheoretical variogram with 9 observations") + theme(plot.title = element_text(size = 12))
 
 n_obs = 64
 obs64 <- sample(1:900)[1:n_obs] 
@@ -672,7 +672,7 @@ v2<-ggplot() +
   geom_line(data = df, aes(y = y2, x = x, colour = "Full realization")) +
   geom_line(data = df, aes(y = y3, x = x, colour = "64 observations")) +
   geom_point(data = df2, aes(y = v, x = u, colour = "Empirical 64 obs")) + 
-  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical, estimated and \ntheoretical variogram with 64 observations") + theme(plot.title = element_text(size = 10))
+  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical, estimated and \ntheoretical variogram with 64 observations") + theme(plot.title = element_text(size = 12))
 
 n_obs = 100
 obs100 <- sample(1:900)[1:n_obs]
@@ -694,7 +694,7 @@ v3<-ggplot() +
   geom_line(data = df, aes(y = y2, x = x, colour = "Full realization")) +
   geom_line(data = df, aes(y = y3, x = x, colour = "100 observations")) +
   geom_point(data = df2, aes(y = v, x = u, colour = "Empirical 100 obs")) + 
-  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical, estimated and \ntheoretical variogram with 100 observations") + theme(plot.title = element_text(size = 10))
+  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical, estimated and \ntheoretical variogram with 100 observations") + theme(plot.title = element_text(size = 12))
 v1
 v2
 v3
