@@ -12,8 +12,7 @@ output:
     toc_depth: 2
     toc_float: yes
 date: "`r format(Sys.time(), '%d.%m.%Y')`"
-subtitle: 'Group members: Henrik Syversveen Lie, Øyvind Auestad (SKRIVE STUDENTNUMMER
-  I STEDET??)'
+subtitle: 'Group members: Henrik Syversveen Lie, Øyvind Auestad'
 ---
 
 
@@ -59,7 +58,7 @@ We restrict the spatial correlation functions to be only positive definite funct
 &\text{for all }n\in \mathbb{N}_+ \setminus \{1\}.
 \end{align*}
 
-To further investigate different correlation functions, we display two types of correlation functions, the Matern and Powered exponential functions, for different values of $\nu_r$. 
+To further investigate different correlation functions, we display two types of correlation functions, the Matern: $\rho(\tau) = 2^{1-\nu}/\Gamma(\nu) \cdot \tau^\nu \mathcal{B}_\nu(\tau)$, and Powered exponential: $\rho(\tau) = \exp(-\tau^\nu)$, for different values of $\nu_r$. 
 
 ```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
 set.seed(123)
