@@ -583,7 +583,7 @@ ggplot() +
   geom_point(data = df2, aes(y = v, x = u, colour = "Empirical")) + 
   xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical and theoretical variogram")
 ```
-From the plot, we see that the empirical variogram differs somewhat from the theoretical variogram. The two variograms coincide well for small values of $\tau$, but with greater $\tau$ the variograms differ significantly. This is as to be expected, because the empirical variogram is generated on relatively few observations and only one realization.
+From the plot, we see that the empirical variogram differs somewhat from the theoretical variogram. The two variograms coincide well for small values of $\tau$, but with greater $\tau$ the variograms differ significantly. This is as to be expected, because the empirical variogram is generated on only one realization and relatively few observations, especialy for large values of $\tau$.
 
 
 ## c)
