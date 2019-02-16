@@ -381,8 +381,8 @@ A stationary Gaussian RF is a reasonable model for the terrain elevation in doma
 ## b)
 We let the terrain elevation on the domain $D$ be modeled by the Gaussian RF $\{r(\mathbf{x});\mathbf{x}\in D \subset \mathbb{R}^2\}$ with
 \begin{align*}
-E\{r(\mathbf{x})\} & = \mathbf{g}(\mathbf{x})^T\boldsymbol \beta_r\\
-Var\{r(\mathbf{x})\}&=\sigma_r^2\\
+E\{r(\mathbf{x})\} & = \mathbf{g}(\mathbf{x})^T\boldsymbol \beta_r,\\
+Var\{r(\mathbf{x})\}&=\sigma_r^2,\\
 Corr\{r(\mathbf{x}),r(\mathbf{x}')\} &= \rho_r(\tau/\xi),
 \end{align*}
 where $\mathbf{g}(\mathbf{x}) = (g_1(\mathbf{x}),\dots,g_{n_g}(\mathbf{x}))^T$ is a $n_g$-vector of known explanatory variables on $\mathbf{x}\in D$, and $\boldsymbol \beta_r = (\beta_1,\dots,\beta_{n_g})^T$ is a $n_g$-vector of unknown parameters. Moreover, we let the variance $\sigma_r^2 = 2500$ and the spatial correlation function have $\xi = 100$ with $\tau = |\mathbf{x}-\mathbf{x}'|$.
