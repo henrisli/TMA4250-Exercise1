@@ -454,13 +454,10 @@ The Kriging predictions look very similar, but there are some differences, which
 From these plots it is clear where the observations are located. Moving further away from the observations we see that the Kriging variance increases. It always stays below the model variance ($2500$), with the maximum value being just above $1600$, obtained in the bottom left corner of the first variance plot. 
 
 ## d)
-<<<<<<< HEAD
-Since the random field is Gaussian, the best linear predictor (our Kriging predictor) coincides with the conditional expectation, $E(r_0 | \mathbf{r^d})$. The Gaussian distribution is closed under conditioning, and it follows that $$r_0 | \mathbf{r^d} \sim \phi(r_0; \hat{r}, \sigma^2_{\hat{r}}),$$ where $\sigma^2_{\hat{r}}$ is as previously defined. 
-=======
+
 Since the random field is Gaussian, the best linear predictor (our kriging predictor) coincides with the conditional expectation, $E(r_0 | \mathbf{r^d})$. The Gaussian distribution is closed under conditioning, and it follows that
 $$[r_0 | \mathbf{r^d}] \sim \phi(r_0; \hat{r}_0, \sigma^2_{\hat{r}}),$$
 where $\sigma^2_{\hat{r}}$ is as previously defined. 
->>>>>>> 97a94eb503dfb2b08973b346f2313a1571f70dd7
 
 Then we get
 $$P(r((100, 100)) < 700) = P\Big(\frac{r((100, 100)) - \hat{r}_0}{\sigma_{\hat{r}}} < \frac{700 - \hat{r}_0}{\sigma_{\hat{r}}}\Big) = \Phi \Big(\frac{700 - \hat{r}_0}{\sigma_{\hat{r}}}\Big),$$
