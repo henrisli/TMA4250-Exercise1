@@ -379,6 +379,14 @@ image.plot(interpolation)
 A stationary Gaussian RF is a reasonable model for the terrain elevation in domain D provided the correlation function is such that the dependence between different points is decreasing with distance. This RF is ergodic as well, which is natural for the model. 
 
 ## b)
+We let the terrain elevation on the domain $D$ be modeled by the Gaussian RF $\{r(\mathbf{x});\mathbf{x}\in D \subset \mathbb{R}^2\}$ with
+\begin{align*}
+E\{r(\mathbf{x})\} & = \mathbf{g}(\mathbf{x})^T\boldsymbol \beta_r\\
+Var\{r(\mathbf{x})\}&=\sigma_r^2\\
+Corr\{r(\mathbf{x}),r(\mathbf{x}')\} &= \rho_r(\tau/\xi),
+\end{align*}
+where $\mathbf{g}(\mathbf{x}) = (g_1(\mathbf{x}),\dots,g_{n_g}(\mathbf{x}))^T$ is a $n_g$-vector of known explanatory variables on $\mathbf{x}\in D$, and $\boldsymbol \beta_r = (\beta_1,\dots,\beta_{n_g})^T$ is a $n_g$-vector of unknown parameters. Moreover, we let the variance $\sigma_r^2 = 2500$ and the spatial correlation function have $\xi = 100$ with $\tau = |\mathbf{x}-\mathbf{x}'|$.
+
 We now want to develop the expression for the minimization problem to be solved for
 the universal kriging predictor. We assume the model parameters $\boldsymbol \beta_r^+$ to be unknown, while the parameters ($\sigma_r^2,\eta_r$) are known. Then, we need the kriging predictor $\hat r_0$ to be unbiased, which requires
 $$\mathbf{E}[\hat r_0 - r_0] = \boldsymbol \alpha^T\mathbf{E}[\mathbf{r}^d] - \mathbf{E}[r_0] = 0,$$
