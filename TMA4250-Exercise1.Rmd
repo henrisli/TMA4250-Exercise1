@@ -348,7 +348,7 @@ cat("Predicted variance of A hat: ", var(A_hat))
 From the print-out, we see that $\hat{A}_r > \tilde{A}_r$. To shed some light on this result, we make use of Jensen's inequality, which states that for a random variable $X$ and a convex function $\psi$,
 $$\psi(E[X]) \leq E[\psi(X)].$$
 We then note that $\hat{r}(x) = E[r_i(x)]$, and with $\psi(\xi) = I(\xi >2)$, we get after integrating over $D$ (summing over $L$),
-$$\sum_{x \in L} I(\hat{r}(x)>2)\leq E\Big[\int_D I(r_i(x)>2)dx\Big].$$
+$$\sum_{x \in L} I(\hat{r}(x)>2)\leq \int_D E\big[I(r_i(x)>2)\big]dx.$$
 Now, $\tilde{A}_r$ is equal to the left hand side, and $\hat{A}_r$ is an unbiased prediction of the right hand side, and one would therefore expect $\tilde{A}_r < \hat{A}_r$. 
 
 ## g)
@@ -357,7 +357,11 @@ We now want to sum up our experiences made during this exercise. Firstly, we hav
 
 # Problem 2: Gaussian RF - real data
 
+In this problem, we consider observations of terrain elevation from a provided data file. The 52 data observations are located on a domain $D = (0,315)\times(0,315)\subset \mathbb{R}^2$. We let the 52-vector of exact observations be $\mathbf{d} = (r(\mathbf{x}_1^0),\dots,r(\mathbf{x}_{52}^0))^T$.
+
 ## a)
+We then display the observations in two different ways.
+
 ```{r, echo = F, eval = T, out.width = "50%"}
 data = read.table("https://www.math.ntnu.no/emner/TMA4250/2017v/Exercise1/topo.dat")
 interpolation <- interp(data$x, data$y, data$z)
