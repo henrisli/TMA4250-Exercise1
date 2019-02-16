@@ -702,4 +702,4 @@ v3
 From the plots, we see that including more observations gives a better fit to the correct variogram for both the empirical and the estimated variogram. 
 
 ## e)
-In this problem, we have used the variogram function for the first time, and used maximum likelihood to find covariance parameters for the first time. The achieved results seemed bizarre, as 36 observations provided a better fit than 900 observations. We suspect this result to be due to chance, and would not expect to get the same result if the experiment was repeated.
+In this problem, we have used the variogram function for the first time, and used maximum likelihood to find covariance parameters for the first time. The achieved results seemed bizarre, as 36 observations provided a better fit than 900 observations. We suspect this result to be due to chance, and would not expect to get the same result if the experiment was repeated. Again, some insight into the `likfit()` function would be interesting to understand what is happening, instead of treating the function as a black box.
