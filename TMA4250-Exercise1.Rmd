@@ -388,7 +388,7 @@ Corr\{r(\mathbf{x}),r(\mathbf{x}')\} &= \rho_r(\tau/\xi),
 where $\mathbf{g}(\mathbf{x}) = (g_1(\mathbf{x}),\dots,g_{n_g}(\mathbf{x}))^T$ is a $n_g$-vector of known explanatory variables on $\mathbf{x}\in D$, and $\boldsymbol \beta_r = (\beta_1,\dots,\beta_{n_g})^T$ is a $n_g$-vector of unknown parameters. Moreover, we let the variance $\sigma_r^2 = 2500$ and the spatial correlation function have $\xi = 100$ with $\tau = |\mathbf{x}-\mathbf{x}'|$.
 
 We now want to develop the expression for the minimization problem to be solved for
-the universal kriging predictor. We assume the model parameters $\boldsymbol \beta_r^+$ to be unknown, while the parameters ($\sigma_r^2,\eta_r$) are known. Then, we need the kriging predictor $\hat r_0$ to be unbiased, which requires
+the universal Kriging predictor. We assume the model parameters $\boldsymbol \beta_r^+$ to be unknown, while the parameters ($\sigma_r^2,\eta_r$) are known. Then, we need the Kriging predictor $\hat r_0$ to be unbiased, which requires
 $$\mathbf{E}[\hat r_0 - r_0] = \boldsymbol \alpha^T\mathbf{E}[\mathbf{r}^d] - \mathbf{E}[r_0] = 0,$$
 implying
 $$\boldsymbol \alpha^T\mathbf{G}_d\boldsymbol \beta_r^+ = \mathbf{g}_\mathbf{x_0}\boldsymbol \beta_r^+,$$
@@ -433,25 +433,33 @@ color_table = tim.colors(64)
 x = seq(1, 315, l = 315)
 y = seq(1, 315, l = 315)
 image.plot(x = x, y = y, z = matrix(kriging_2nd$predict, nrow = 315), main = "Prediction. Second order mean function", breaks = pred_brk, col = color_table)
-image.plot(x = x, y = y, z = matrix(kriging_2nd$krige.var, nrow = 315), main = "Variance. Second order mean function", breaks = var_brk, col = color_table)
 
 # 1st
 kriging_1st <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("1st", as.geodata(data)), trend.l = trend.spatial("1st", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100)), output = output.control(messages = F)) 
 
 image.plot(x = x, y = y, z = matrix(kriging_1st$predict, nrow = 315), main = "Prediction. First order mean function", breaks = pred_brk, col = color_table)
+
+# variance
+
+image.plot(x = x, y = y, z = matrix(kriging_2nd$krige.var, nrow = 315), main = "Variance. Second order mean function", breaks = var_brk, col = color_table)
+
 image.plot(x = x, y = y, z = matrix(kriging_1st$krige.var, nrow = 315), main = "Variance. First order mean function", breaks = var_brk, col = color_table)
 
 ```
 
 If we change the parametrization of the expectation function, it could be natural also to change the value of the model variance, $\sigma_r^2$. For example when we reduce the degree of the polynomial in the expectation function it could be that we might have to compensate with a larger model variance to get bigger fluctutations around this new 'less flexible' mean. But in practice it would be more natural to estimate the model variance using maximum likelihood, with our data points.
 
-The kriging predictions look very similar, but there are some differences, which become most clear in the corners of the field. The same is true for the kriging variances. Adding more parameters in the expectation function, we get more constraints on the minimization problem for $\alpha$, and so a larger or equal kriging variance. From the plots we see that the model with second order expectation has the largest kriging variances, as expected.
+The Kriging predictions look very similar, but there are some differences, which become most clear in the corners of the field. The same is true for the Kriging variances. Adding more parameters in the expectation function, we get more constraints on the minimization problem for $\alpha$, and so a larger or equal Kriging variance. From the plots we see that the model with second order expectation has the largest Kriging variances, as expected.
 
-From these plots it is clear where the observations are located. Moving further away from the observations we see that the kriging variance increases. It always stays below the model variance ($2500$), with the maximum value being just above $1600$, obtained in the bottom left corner of the first variance plot. 
+From these plots it is clear where the observations are located. Moving further away from the observations we see that the Kriging variance increases. It always stays below the model variance ($2500$), with the maximum value being just above $1600$, obtained in the bottom left corner of the first variance plot. 
 
 ## d)
-Since the random field is Gaussian, the best linear predictor (our kriging predictor) coincides with the conditional expectation, $E(r_0 | \mathbf{r^d})$. The Gaussian distribution is closed under conditioning, and it follows that $$r_0 | \mathbf{r^d} \sim \phi(r_0; \hat{r}, \sigma^2_{\hat{r}}),$$ where $\sigma^2_{\hat{r}}$ is as previously defined. 
+Since the random field is Gaussian, the best linear predictor (our Kriging predictor) coincides with the conditional expectation, $E(r_0 | \mathbf{r^d})$. The Gaussian distribution is closed under conditioning, and it follows that $$r_0 | \mathbf{r^d} \sim \phi(r_0; \hat{r}, \sigma^2_{\hat{r}}),$$ where $\sigma^2_{\hat{r}}$ is as previously defined. 
 
+Then we get
+$$P(r((100, 100)) < 700) = P\Big(\frac{r((100, 100)) - \hat{r}_0}{\sigma_{\hat{r}}} < \frac{700 - \hat{r}_0}{\sigma_{\hat{r}}}\Big) = \Phi \Big(\frac{700 - \hat{r}_0}{\sigma_{\hat{r}}}\Big),$$
+and the elevation for which it is 0.9 probability that the true elevation is below it will be the solution, $r_{0.9}$, to
+$$P(r((100, 100)) < r_{0.9}) = 0.9 \Rightarrow \Phi \Big(\frac{r_{0.9} - \hat{r}_0}{\sigma_{\hat{r}}}\Big) = 0.9.$$
 ```{r, echo = F, eval = T}
 # index of (100, 100)
 idx = 100 + 100 * 315
@@ -466,6 +474,8 @@ cat("Elevation at which the probability of r((100, 100)) being smaller is 0.9: "
 
 ## e)
 
+We now assume that the observations in the $n_g-$vector $\mathbf{d}$ are associated with observation errors being centered Gaussian and independent from each other and the terrain elevation, with error variance $\sigma_{\epsilon}^2$. We calculate the Kriging predictions with associated prediction variance for the two values of the observation error variance, $\sigma_{\epsilon}^2 \in \{ 5, 25 \}$. The results are displayed below.
+
 ```{r, echo = F, eval = T, out.width = "50%"}
 locations = expand.grid(seq(1,315,l=315), seq(1,315,l=315))
 loc = as.data.frame(locations)
@@ -479,13 +489,11 @@ kriging_2nd_5 <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, loc
 x = seq(1, 315, l = 315)
 y = seq(1, 315, l = 315)
 image.plot(x = x, y = y, z = matrix(kriging_2nd_5$predict, nrow = 315), main = "Prediction. Second order mean function. \nMeasurement error variance = 5", breaks = pred_brk, col = color_table)
-image.plot(x = x, y = y, z = matrix(kriging_2nd_5$krige.var, nrow = 315), main = "Variance. Second order mean function. \nMeasurement error variance = 5", breaks = var_brk, col = color_table)
 
 # 1st
 kriging_1st_5 <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("1st", as.geodata(data)), trend.l = trend.spatial("1st", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100), nugget = 5), output = output.control(messages = F)) 
 
 image.plot(x = x, y = y, z = matrix(kriging_1st_5$predict, nrow = 315), main = "Prediction. First order mean function. \nMeasurement error variance = 5", breaks = pred_brk, col = color_table)
-image.plot(x = x, y = y, z = matrix(kriging_1st_5$krige.var, nrow = 315), main = "Variance. First order mean function. \nMeasurement error variance = 5", breaks = var_brk, col = color_table)
 
 # nugget = 25
 
@@ -495,16 +503,25 @@ kriging_2nd_25 <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, lo
 x = seq(1, 315, l = 315)
 y = seq(1, 315, l = 315)
 image.plot(x = x, y = y, z = matrix(kriging_2nd_25$predict, nrow = 315), main = "Prediction. Second order mean function. \nMeasurement error variance = 25", breaks = pred_brk, col = color_table)
-image.plot(x = x, y = y, z = matrix(kriging_2nd_25$krige.var, nrow = 315), main = "Variance. Second order mean function. \nMeasurement error variance = 25", breaks = var_brk, col = color_table)
 
 # 1st
 kriging_1st_25 <- krige.conv(coords = t(rbind(data$x,data$y)), data = data$z, locations = locations, krige = krige.control(type.krige = "ok",trend.d = trend.spatial("1st", as.geodata(data)), trend.l = trend.spatial("1st", as.geodata(loc)), cov.model = "exponential", cov.pars = c(2500,100), nugget = 25), output = output.control(messages = F)) 
 
 image.plot(x = x, y = y, z = matrix(kriging_1st_25$predict, nrow = 315), main = "Prediction. First order mean function. \nMeasurement error variance = 25", breaks = pred_brk, col = color_table)
-image.plot(x = x, y = y, z = matrix(kriging_2nd_25$krige.var, nrow = 315), main = "Variance. First order mean function. \nMeasurement error variance = 25", breaks = var_brk, col = color_table)
+
+
+# variances 
+image.plot(x = x, y = y, z = matrix(kriging_2nd_5$krige.var, nrow = 315), main = "Variance. Second order mean function. \nMeasurement error variance = 5", breaks = var_brk, col = color_table)
+
+image.plot(x = x, y = y, z = matrix(kriging_1st_5$krige.var, nrow = 315), main = "Variance. First order mean function. \nMeasurement error variance = 5", breaks = var_brk, col = color_table)
+
+image.plot(x = x, y = y, z = matrix(kriging_2nd_25$krige.var, nrow = 315), main = "Variance. Second order mean function. \nMeasurement error variance = 25", breaks = var_brk, col = color_table)
+
+image.plot(x = x, y = y, z = matrix(kriging_1st_25$krige.var, nrow = 315), main = "Variance. First order mean function. \nMeasurement error variance = 25", breaks = var_brk, col = color_table)
+
 ```
 
-The result is plotted above. Again, it is hard to see a clear difference in the plots of the kriging predictions, but it is possible if you look in the corners of the plot. The kriging variances differ more clearly. For example are we able to see how the measurement error variance increases the kriging variance. This is particularly clear in the plots of the variances of the model with first order expectation function and different measurement error variances. Also here the kriging variance takes on larger values for the model with second order expectation function. The largest being just below $1700$, obtained in the bottom left corner. The variances always stays below the prior variance, and tends towards this with increasing distance from the observations. 
+It is hard to see a difference in the plots of the Kriging predictions. The same goes for the Kriging variances. The added measurement error is not large enough to be visible on the plot. But if we look at the Kriging variance values we see that a larger measurement error variance gives a larger Kriging variance, which we would expect. If we increase this variance even more we might be able to see the difference in the plots.
 
 ## f)
 
