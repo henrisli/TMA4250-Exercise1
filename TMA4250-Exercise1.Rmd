@@ -58,7 +58,7 @@ We restrict the spatial correlation functions to be only positive definite funct
 &\text{for all }n\in \mathbb{N}_+ \setminus \{1\}.
 \end{align*}
 
-To further investigate different correlation functions, we display two types of correlation functions, the Matern: $\rho(\tau) = 2^{1-\nu}/\Gamma(\nu) \cdot \tau^\nu \mathcal{B}_\nu(\tau)$, and Powered exponential: $\rho(\tau) = \exp(-\tau^\nu)$, for different values of $\nu_r$. 
+To further investigate different correlation functions, we display two types of correlation functions, the Matern: $\rho(\tau) = 2^{1-\nu}/\Gamma(\nu) \cdot \tau^\nu \mathcal{B}_\nu(\tau)$, and Powered exponential: $\rho(\tau) = \exp(-\tau^\nu)$, for different values of $\nu_r$.
 
 ```{r, echo = F, eval = T, out.width = "50%", fig.align = "center"}
 set.seed(123)
@@ -76,7 +76,7 @@ ggplot(df, aes(x, y = value, color = variable)) +
   scale_color_manual(labels = c(expression(paste("Matern ",nu, "=1")), expression(paste("Matern ",nu, "=3")),expression(paste("PExp ", nu, "=1")), expression(paste("PExp ", nu, "=1.9"))), values = c("red", "blue", "green", "purple")) + xlab(expression(paste(tau))) + ylab(expression(paste(rho, "(", tau,")"))) + ggtitle(expression(paste("Display of two correlation functions for different values of ", nu)))
 ```
 
-For all correlation functions $\rho_r(0)  =1$, and $\rho_r(\tau) \in [-1,1]$; $\tau\in\mathbb{R}_+$, because the function represents correlation between two random variables. The correlation functions are continuous everywhere, except at $\tau = 0$ where a step may occur. If the correlation function is continuous at $\tau = 0$, then the random field is continuous almost everywhere. Away from $\tau = 0$, the correlation function must be smooth. From the displayed correlation functions, we see that $\rho_r(\tau)\rightarrow 0$ as $\tau \rightarrow \infty$. This will be the case for all correlation functions, implying that two points $\mathbf{x}$ and $\mathbf{x}'$ will tend towards being uncorrelated as $\lvert\mathbf{x}-\mathbf{x}'\rvert\rightarrow\infty$. Uncorrelated Gaussian random fields means that they will be independent, and by extension asymptotics Gaussion random fields are ergodic.
+For all correlation functions $\rho_r(0)  =1$, and $\rho_r(\tau) \in [-1,1]$; $\tau\in\mathbb{R}_+$, because the function represents correlation between two random variables. The correlation functions are continuous everywhere, except at $\tau = 0$ where a step may occur. If the correlation function is continuous at $\tau = 0$, then the random field is continuous almost everywhere. Away from $\tau = 0$, the correlation function must be smooth. From the displayed correlation functions, we see that $\rho_r(\tau)\rightarrow 0$ as $\tau \rightarrow \infty$. This will be the case for all correlation functions, implying that two points $\mathbf{x}$ and $\mathbf{x}'$ will tend towards being uncorrelated as $\lvert\mathbf{x}-\mathbf{x}'\rvert\rightarrow\infty$. Uncorrelated Gaussian random fields means that they will be independent, and by extension asymptotics Gaussian random fields are ergodic.
 
 The correlation functions define correlation between points in our random field. This means that larger values of the correlation function implies a smoother random field. From the plotted correlation function, we see that the function values increases for larger values of $\nu_r$. Consequently, larger values of $\nu_r$ implies smoother random fields for both these correlation functions.
 
@@ -101,7 +101,7 @@ ggplot(df, aes(x, y = value, color = variable)) +
 ## b)
 The prior Gaussion random field is defined on the discretized representation $L\in \{1,2,\dots,50\}$ by
 $$\mathbf{r} \sim p(\mathbf{r}) = \phi_n(\mathbf{r};\mu_r \mathbf{i}_n, \sigma^2_r \boldsymbol{\Sigma}_r^\rho),$$
-which is a discretized stationary Gaussian random field with expectation $\mu(\mathbf{x}) = \mu_r$, variance $\sigma^2(\mathbf{x}) = \sigma_r^2$ and correlation function $\rho(\mathbf{x},\mathbf{x}') = \rho_r(\mathbf{x}-\mathbf{x}')$.
+which is a discretized stationary Gaussian random field with expectation $\mu(\mathbf{x}) = \mu_r$, variance $\sigma^2(\mathbf{x}) = \sigma_r^2$ and correlation function $\rho(\mathbf{x},\mathbf{x}') = \rho_r(|\mathbf{x}-\mathbf{x}'|/10)$.
 
 We now want to simulate ten realizations of the Gaussian random field on $L$ for all the previously displayed correlation functions and $\sigma_r^2 \in [1,5]$.
 
@@ -187,11 +187,11 @@ where $\mathbf{H}$ is a $(m\times n)$ observation matrix. In our case, because w
 
 ## d)
 The pdf for the discretised posterior Gaussian random field, given the observations is defined in the following way,
-$$[\mathbf{r}|\mathbf{d}]\sim p(\mathbf{r}|\mathbf{d}) = \phi_n(\mathbf{r};\boldsymbol \mu_{r|d},\boldsymbol \Sigma_{r|d},)$$
+$$[\mathbf{r}|\mathbf{d}]\sim p(\mathbf{r}|\mathbf{d}) = \phi_n(\mathbf{r};\boldsymbol \mu_{r|d},\boldsymbol \Sigma_{r|d}),$$
 with
 \begin{align*}
-\boldsymbol \mu_{r|d} &=\mu_r \mathbf{i}_n + \sigma^2_r \boldsymbol \Sigma_r^\rho \mathbf{H}^T\big[\sigma_r^2\mathbf{H}\boldsymbol \Sigma_r^\rho\mathbf{H} + \boldsymbol \Sigma_{d|r}\big]^{-1}[\mathbf{d}-\mu_r\mathbf{H}\mathbf{i}_n]\\
-\boldsymbol \Sigma_{r|d} &= \boldsymbol \Sigma_{r|d}^\sigma \boldsymbol \Sigma_{r|d}^\rho \boldsymbol \Sigma_{r|d}^\sigma = \sigma_r^2 \boldsymbol \Sigma_r^\rho - \sigma_r^2 \boldsymbol \Sigma_r^\rho\mathbf{H}^T\big[\sigma_r^2\mathbf{H}\boldsymbol \Sigma_r^\rho\mathbf{H} + \boldsymbol \Sigma_{d|r}\big]^{-1}\sigma_r^2\mathbf{H}\boldsymbol \Sigma_r^\rho
+\boldsymbol \mu_{r|d} &=\mu_r \mathbf{i}_n + \sigma^2_r \boldsymbol \Sigma_r^\rho \mathbf{H}^T\big[\sigma_r^2\mathbf{H}\boldsymbol \Sigma_r^\rho\mathbf{H} + \boldsymbol \Sigma_{d|r}\big]^{-1}[\mathbf{d}-\mu_r\mathbf{H}\mathbf{i}_n],\\
+\boldsymbol \Sigma_{r|d} &= \boldsymbol \Sigma_{r|d}^\sigma \boldsymbol \Sigma_{r|d}^\rho \boldsymbol \Sigma_{r|d}^\sigma = \sigma_r^2 \boldsymbol \Sigma_r^\rho - \sigma_r^2 \boldsymbol \Sigma_r^\rho\mathbf{H}^T\big[\sigma_r^2\mathbf{H}\boldsymbol \Sigma_r^\rho\mathbf{H} + \boldsymbol \Sigma_{d|r}\big]^{-1}\sigma_r^2\mathbf{H}\boldsymbol \Sigma_r^\rho.
 \end{align*}
 
 We use as prior model one of the realizations with $\sigma_r^2 = 5$, $\nu = 1$ and Matern correlation function. Then, a prediction of the spatial variable $\{\hat{r}(\mathbf{x}); \mathbf{x}\in L\}$ represented by the vector $\hat{\mathbf{r}}$ is taken to minimize squared error, yielding
@@ -315,7 +315,9 @@ ggplot() +
 From the plots, we again see that with no observation error, the prediction coincides with the observations in the points where we have an observation, and we get zero prediction variance. However, because we here only have simulated values (and only 100 simulations), the variance with observation error is not larger for all other points than the variance without observation error.
 
 Also, we see that the variance and prediction based on the 100 samples coincides well with the theoretical prediction and variance. Still, we observe lower degree of smoothness in the lines, which is as expected when comparing simulated values with theoretical quantities.
+
 ## f)
+
 We use the previously generated $n=100$ realizations $\{r_i(x)\}, i \in 1,\dots,n$ with $\sigma_\epsilon^2 = 0$ to provide a prediction $\hat{A}_r$ for the non-linear function on $\{r(x);x\in D\}$,
 $$A_r = \int_D I(r(x)>2)dx.$$
 The predictor $\hat{A}_r$ will be
@@ -346,8 +348,11 @@ cat("Predicted variance of A hat: ", var(A_hat))
 From the print-out, we see that $\hat{A}_r > \tilde{A}_r$. To shed some light on this result, we make use of Jensen's inequality, which states that for a random variable $X$ and a convex function $\psi$,
 $$\psi(E[X]) \leq E[\psi(X)].$$
 We then note that $\hat{r}(x) = E[r_i(x)]$, and with $\psi(\xi) = I(\xi >2)$, we get after integrating over $D$ (summing over $L$),
-$$\tilde{A}_r = \sum_{x \in L} I(\hat{r}(x)>2)\leq E\Big[\int_D I(r_i(x)>2)dx\Big] = \hat{A}_r.$$
+$$\sum_{x \in L} I(\hat{r}(x)>2)\leq E\Big[\int_D I(r_i(x)>2)dx\Big].$$
+Now, $\tilde{A}_r$ is equal to the left hand side, and $\hat{A}_r$ is an unbiased prediction of the right hand side, and one would therefore expect $\tilde{A}_r < \hat{A}_r$. 
+
 ## g)
+
 We now want to sum up our experiences made during this exercise. Firstly, we have investigated and achieved greater understanding as to why correlation functions need to be positive definite. Furhtermore, the choice of correlation function and correlation function parameters has great implications for the structure of the Gaussian RF. By choosing a suitable correlation function, we can impact both smoothness and overall variance of the resulting RF. Including an observation error on the observations also has great impact on the prediction variance in those points, and smaller impact on points far away from the observations. We have also gotten a greater understanding in making predictions on Gaussian RFs, and experienced an application of Jensen's inequality.
 
 # Problem 2: Gaussian RF - real data
@@ -659,5 +664,6 @@ v2
 v3
 ```
 From the plots, we see that including more observations gives a better fit to the correct variogram for both the empirical and the estimated variogram. 
+
 ## e)
 
