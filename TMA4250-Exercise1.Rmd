@@ -414,7 +414,9 @@ $$\mathbf{g}(\mathbf{x}) = \{1,x_v, x_h, x_vx_h, x_v^2, x_h^2\}.$$
 This gives the following expectation value for $r(\mathbf{x})$
 $$\mathbf{E}(r(\mathbf{x})) = \mathbf{g}(\mathbf{x})^T\boldsymbol \beta_r = \beta_1 + x_v \beta_2 + x_h \beta_3 + x_v x_h \beta_4 + x_v^2 \beta_5 + x_h^2 \beta_6.$$
 
-We can interpret the model such that mean is the level around which the elevation fluctuates, while the variance is the degree of fluctuation. The level is here a second order polynomial in the coordinates, while the prior variance is constant over the coordinates. 
+We also present a model without the second order terms. 
+
+We can interpret the model such that mean is the level around which the elevation fluctuates, while the variance is the degree of fluctuation. The level is here a second order polynomial in the coordinates, while the variance is constant over the coordinates. 
 
 ```{r, echo = F, eval = T, out.width = "50%"}
 locations = expand.grid(seq(1,315,l=315), seq(1,315,l=315))
@@ -441,12 +443,14 @@ image.plot(x = x, y = y, z = matrix(kriging_1st$krige.var, nrow = 315), main = "
 
 ```
 
-If we change the parametrization of the expectation function, it could be natural also to change the value of the prior variance, $\sigma_r^2$. For example when we reduce the degree of the polynomial in the expectation function it could be that we might have to compensate with a larger prior variance to get bigger fluctutations around this new 'less flexible' mean. But in practice it would be more natural to estimate the prior variance using maximum likelihood, with our data points.
+If we change the parametrization of the expectation function, it could be natural also to change the value of the model variance, $\sigma_r^2$. For example when we reduce the degree of the polynomial in the expectation function it could be that we might have to compensate with a larger model variance to get bigger fluctutations around this new 'less flexible' mean. But in practice it would be more natural to estimate the model variance using maximum likelihood, with our data points.
 
-The kriging predictions looks very similar, but there are some differences, which become most clear in the corners of the field. The same is true for the kriging variances. It seems like it is the model with second order expectation which has the largest kriging variances. From these plots it is clear where the observations are located. Moving further away from the observations we see that the kriging variance increases. It always stays below the prior variance ($2500$), with the maximum value being just above $1600$, obtained in the bottom left corner of the first variance plot. 
+The kriging predictions look very similar, but there are some differences, which become most clear in the corners of the field. The same is true for the kriging variances. Adding more parameters in the expectation function, we get more constraints on the minimization problem for $\alpha$, and so a larger or equal kriging variance. From the plots we see that the model with second order expectation has the largest kriging variances, as expected.
+
+From these plots it is clear where the observations are located. Moving further away from the observations we see that the kriging variance increases. It always stays below the model variance ($2500$), with the maximum value being just above $1600$, obtained in the bottom left corner of the first variance plot. 
 
 ## d)
-Since the random field is Gaussian, the best linear predictor (our kriging predictor) coencides with the conditional expectation, $E(r_0 | \mathbf{r^d})$. The Gaussian distribution is closed under conditioning, and it follows that $$r_0 | \mathbf{r^d} \sim \phi(r_0; \hat{r}, \sigma^2_{\hat{r}}),$$ where $\sigma^2_{\hat{r}}$ is as previously defined. 
+Since the random field is Gaussian, the best linear predictor (our kriging predictor) coincides with the conditional expectation, $E(r_0 | \mathbf{r^d})$. The Gaussian distribution is closed under conditioning, and it follows that $$r_0 | \mathbf{r^d} \sim \phi(r_0; \hat{r}, \sigma^2_{\hat{r}}),$$ where $\sigma^2_{\hat{r}}$ is as previously defined. 
 
 ```{r, echo = F, eval = T}
 # index of (100, 100)
