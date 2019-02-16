@@ -587,7 +587,7 @@ From the plot, we see that the empirical variogram differs somewhat from the the
 
 
 ## c)
-We now generate 36 locations uniformly randomly on the grid $L$. The we compute the empirical variogram estimate based on the corresponding 36 exact observations. The estimate is then displayed jointly with the theoretical variogram function.
+We now generate 36 locations uniformly randomly on the grid $L$. Then we compute the empirical variogram estimate based on the corresponding 36 exact observations. The estimate is then displayed jointly with the theoretical variogram function.
 
 Then we consider the model parameters $\sigma_r^2$ and $\xi_r$ to be unknown. These are then estimated by a maximum likelihood criterion based on exact observation of the full realization and based on the 36 observations. The two estimated variogram functions are then jointly displayed with the correct variogram function.
 ```{r, echo = F, eval = T, out.width = "50%"}
@@ -649,7 +649,7 @@ v1<-ggplot() +
   geom_line(data = df, aes(y = y2, x = x, colour = "Full realization")) +
   geom_line(data = df, aes(y = y3, x = x, colour = "9 observations")) +
   geom_point(data = df2, aes(y = v, x = u, colour = "Empirical 9 obs")) + 
-  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical, estimated and theoretical variogram with 9 observations") + theme(plot.title = element_text(size = 8))
+  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical, estimated and \ntheoretical variogram with 9 observations") + theme(plot.title = element_text(size = 10))
 
 n_obs = 64
 obs64 <- sample(1:900)[1:n_obs] 
@@ -672,7 +672,7 @@ v2<-ggplot() +
   geom_line(data = df, aes(y = y2, x = x, colour = "Full realization")) +
   geom_line(data = df, aes(y = y3, x = x, colour = "64 observations")) +
   geom_point(data = df2, aes(y = v, x = u, colour = "Empirical 64 obs")) + 
-  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical, estimated and theoretical variogram with 64 observations") + theme(plot.title = element_text(size = 8))
+  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical, estimated and \ntheoretical variogram with 64 observations") + theme(plot.title = element_text(size = 10))
 
 n_obs = 100
 obs100 <- sample(1:900)[1:n_obs]
@@ -694,7 +694,7 @@ v3<-ggplot() +
   geom_line(data = df, aes(y = y2, x = x, colour = "Full realization")) +
   geom_line(data = df, aes(y = y3, x = x, colour = "100 observations")) +
   geom_point(data = df2, aes(y = v, x = u, colour = "Empirical 100 obs")) + 
-  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical, estimated and theoretical variogram with 100 observations") + theme(plot.title = element_text(size = 8))
+  xlab(expression(paste(tau))) + ylab("Variogram") + ggtitle("Comparison of empirical, estimated and \ntheoretical variogram with 100 observations") + theme(plot.title = element_text(size = 10))
 v1
 v2
 v3
