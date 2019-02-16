@@ -569,7 +569,7 @@ y = seq(1,30)
 
 image.plot(x = x, y = y, z = matrix(sample, ncol = 30))
 ```
-From the display, it is reasonable to assume that the generated realization comes from a Gaussian RF. 
+From the display, it is reasonable to assume that the generated realization comes from a Gaussian RF. This is as expected because the realization is generated from a Gaussian RF.
 
 ## b)
 We now compute the empirical variogram based on the exact observations of the full realization displayed above. Then, the estimated variogram is displayed along with the correct variogram function $\gamma(\tau) = 1 - \rho(\tau)$.
