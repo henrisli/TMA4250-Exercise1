@@ -451,7 +451,7 @@ From these plots it is clear where the observations are located. Moving further 
 
 ## d)
 Since the random field is Gaussian, the best linear predictor (our kriging predictor) coincides with the conditional expectation, $E(r_0 | \mathbf{r^d})$. The Gaussian distribution is closed under conditioning, and it follows that
-$$[r_0 | \mathbf{r^d}] \sim \phi(r_0; \hat{r}, \sigma^2_{\hat{r}}),$$
+$$[r_0 | \mathbf{r^d}] \sim \phi(r_0; \hat{r}_0, \sigma^2_{\hat{r}}),$$
 where $\sigma^2_{\hat{r}}$ is as previously defined. 
 
 ```{r, echo = F, eval = T}
