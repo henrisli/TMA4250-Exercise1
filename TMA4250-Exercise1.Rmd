@@ -12,8 +12,7 @@ output:
     toc_depth: 2
     toc_float: yes
 date: "`r format(Sys.time(), '%d.%m.%Y')`"
-subtitle: 'Group members: Henrik Syversveen Lie, Øyvind Auestad (SKRIVE STUDENTNUMMER
-  I STEDET??)'
+subtitle: 'Group members: Henrik Syversveen Lie, Øyvind Auestad'
 ---
 
 
